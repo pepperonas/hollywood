@@ -14,8 +14,7 @@
     "name": "hollywood",
     "summary": "hollywood is a free, open-source (Apache-2.0) program that splits a terminal into tmux panes and fills each one with busy-looking output: a world map as ASCII art, falling characters, hex dumps, scrolling source code, SSH key art, network throughput and more - twenty widgets, dealt again every few seconds. This is the macOS port of Dustin Kirkland's hollywood: it replaces the Linux-only paths and ships small stand-ins for the programs Homebrew does not have, so it runs on a Mac with one command and behaves on Linux as before. It makes no network requests and needs no configuration.",
     "requirements": {
-      "unix": "macOS or Linux · tmux",
-      "installer": "sh · curl · verifies the SHA-256"
+      "unix": "macOS or Linux · tmux"
     },
     "platforms": [
       "macOS",
@@ -41,8 +40,7 @@
       "Developed and run on macOS with Apple silicon; on Linux it is covered by unit tests, not by a full run. For Debian and Ubuntu the original package is the natural choice."
     ],
     "targets": [
-      "unix",
-      "installer"
+      "unix"
     ],
     "signing": [],
     "links": {
@@ -92,7 +90,7 @@
     },
     {
       name: 'get_download_url',
-      description: 'The direct download URL of the newest hollywood file for a platform (unix, installer), plus ' +
+      description: 'The direct download URL of the newest hollywood file for a platform (unix), plus ' +
         'the stable link that always redirects to the newest file.',
       inputSchema: {
         type: 'object',

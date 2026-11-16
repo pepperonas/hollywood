@@ -19,7 +19,6 @@ page itself, browsers with WebMCP expose the same data as the tools `get_latest_
 
 - Stable link, always the newest file for the visitor's platform: <https://hollywood.celox.io/download>
 - macOS · Linux: <https://hollywood.celox.io/download/unix> — macOS or Linux · tmux
-- install.sh: <https://hollywood.celox.io/download/installer> — sh · curl · verifies the SHA-256
 
 ## 3. Verify
 
@@ -29,7 +28,7 @@ page itself, browsers with WebMCP expose the same data as the tools `get_latest_
 
 ## 4. Install
 
-1. With Homebrew: `brew install pepperonas/tap/hollywood` brings hollywood and every program its widgets use. Without Homebrew, the installer script from the download puts it into `~/.local` and names what is missing.
+1. With Homebrew: `brew install pepperonas/tap/hollywood` brings hollywood and every program its widgets use. Without Homebrew, `curl -fsSL https://github.com/pepperonas/hollywood/releases/latest/download/install.sh | sh` puts it into `~/.local` and names what is missing.
 2. Type `hollywood` in a terminal. On a laptop screen `hollywood -s 8` is a good start: eight panes instead of one per widget.
 3. Press Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt.
 

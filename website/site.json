@@ -5,11 +5,11 @@
  "aliases": [],
  "repo": "pepperonas/hollywood",
  "branch": "main",
- "tagline": "Your terminal, ready for its close-up.",
+ "tagline": "Your terminal, ready for its close‑up.",
  "license": "Apache-2.0",
  "tls": "wildcard",
  "year": 2026,
- "asset_version": 1,
+ "asset_version": 2,
  "theme_source": "the terminal palette of the screenshots (tools/termshot.py): dark slate background, the green of the falling characters as primary, amber as the warm accent",
  "theme": {
   "bg": "#0b0d12",
@@ -65,27 +65,6 @@
     "it": "macOS · Linux",
     "fr": "macOS · Linux"
    }
-  },
-  {
-   "id": "installer",
-   "label": "Installer script (install.sh)",
-   "short": "install.sh",
-   "asset": "^install\\.sh$",
-   "requirement": "sh · curl · verifies the SHA-256",
-   "i18n": {
-    "en": "Installer script (install.sh)",
-    "de": "Installationsskript (install.sh)",
-    "es": "Script de instalación (install.sh)",
-    "it": "Script di installazione (install.sh)",
-    "fr": "Script d'installation (install.sh)"
-   },
-   "i18n_short": {
-    "en": "install.sh",
-    "de": "install.sh",
-    "es": "install.sh",
-    "it": "install.sh",
-    "fr": "install.sh"
-   }
   }
  ],
  "chips": [
@@ -111,7 +90,7 @@
   "meta": {
    "title": "hollywood for macOS — Hacker Screen for Your Terminal",
    "description": "Fill your terminal with Hollywood-style technobabble: world map, falling code, hex dumps in tmux panes. Free, open source, runs on macOS and Linux.",
-   "og_title": "hollywood — your terminal, ready for its close-up.",
+   "og_title": "hollywood — your terminal, ready for its close‑up.",
    "og_description": "The screen in the background of every hacker film, in your own terminal. The macOS port of Dustin Kirkland's hollywood: free, open source, one command.",
    "twitter_description": "The hacker screen from every film, in your own terminal. Free, open source, macOS and Linux.",
    "image_alt": "A terminal split into nine panes: a world map, falling characters, source code, a hex dump, block letters, a key fingerprint, passwords, network throughput and a progress bar"
@@ -158,7 +137,7 @@
    "fr": "Terminal · Open source · Gratuit"
   },
   "hero.title": {
-   "en": "Your terminal, <br>ready for its close-up.",
+   "en": "Your terminal, <br>ready for its close‑up.",
    "de": "Dein Terminal, <br>bereit für die Großaufnahme.",
    "es": "Tu terminal, <br>listo para su primer plano.",
    "it": "Il tuo terminale, <br>pronto per il primo piano.",
@@ -411,11 +390,11 @@
      "fr": "Installer"
     },
     "p": {
-     "en": "With Homebrew: <code>brew install pepperonas/tap/hollywood</code> brings hollywood and every program its widgets use. Without Homebrew, the installer script from the download puts it into <code>~/.local</code> and names what is missing.",
-     "de": "Mit Homebrew: <code>brew install pepperonas/tap/hollywood</code> bringt hollywood und alle Programme mit, die seine Widgets brauchen. Ohne Homebrew legt das Installationsskript aus dem Download es nach <code>~/.local</code> und nennt, was fehlt.",
-     "es": "Con Homebrew: <code>brew install pepperonas/tap/hollywood</code> trae hollywood y todos los programas que usan sus widgets. Sin Homebrew, el script de instalación de la descarga lo coloca en <code>~/.local</code> e indica lo que falta.",
-     "it": "Con Homebrew: <code>brew install pepperonas/tap/hollywood</code> porta hollywood e tutti i programmi usati dai suoi widget. Senza Homebrew, lo script di installazione del download lo mette in <code>~/.local</code> e indica cosa manca.",
-     "fr": "Avec Homebrew : <code>brew install pepperonas/tap/hollywood</code> installe hollywood et tous les programmes dont ses widgets ont besoin. Sans Homebrew, le script d'installation du téléchargement le place dans <code>~/.local</code> et indique ce qui manque."
+     "en": "With Homebrew: <code>brew install pepperonas/tap/hollywood</code> brings hollywood and every program its widgets use. Without Homebrew, <code>curl -fsSL https://github.com/pepperonas/hollywood/releases/latest/download/install.sh | sh</code> puts it into <code>~/.local</code> and names what is missing.",
+     "de": "Mit Homebrew: <code>brew install pepperonas/tap/hollywood</code> bringt hollywood und alle Programme mit, die seine Widgets brauchen. Ohne Homebrew legt <code>curl -fsSL https://github.com/pepperonas/hollywood/releases/latest/download/install.sh | sh</code> es nach <code>~/.local</code> und nennt, was fehlt.",
+     "es": "Con Homebrew: <code>brew install pepperonas/tap/hollywood</code> trae hollywood y todos los programas que usan sus widgets. Sin Homebrew, <code>curl -fsSL https://github.com/pepperonas/hollywood/releases/latest/download/install.sh | sh</code> lo coloca en <code>~/.local</code> e indica lo que falta.",
+     "it": "Con Homebrew: <code>brew install pepperonas/tap/hollywood</code> porta hollywood e tutti i programmi usati dai suoi widget. Senza Homebrew, <code>curl -fsSL https://github.com/pepperonas/hollywood/releases/latest/download/install.sh | sh</code> lo mette in <code>~/.local</code> e indica cosa manca.",
+     "fr": "Avec Homebrew : <code>brew install pepperonas/tap/hollywood</code> installe hollywood et tous les programmes dont ses widgets ont besoin. Sans Homebrew, <code>curl -fsSL https://github.com/pepperonas/hollywood/releases/latest/download/install.sh | sh</code> le place dans <code>~/.local</code> et indique ce qui manque."
     }
    },
    {

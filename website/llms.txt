@@ -8,7 +8,6 @@ Everything below is also available without JavaScript: the page's HTML carries t
 
 - [Newest release](https://hollywood.celox.io/download): the file for your platform — 302 to the newest file, a verified copy served from this site (resumable)
 - [macOS · Linux](https://hollywood.celox.io/download/unix): macOS or Linux · tmux
-- [install.sh](https://hollywood.celox.io/download/installer): sh · curl · verifies the SHA-256
 - [Newest release as JSON](https://hollywood.celox.io/latest.json): `version`, `published`, `notes`, and `assets[]` with `target`, `name`, `url`, `size` (bytes), `sha256`; refreshed every 15 minutes
 - [All releases and notes](https://github.com/pepperonas/hollywood/releases)
 
@@ -21,7 +20,7 @@ Everything below is also available without JavaScript: the page's HTML carries t
 
 ## Install
 
-1. With Homebrew: `brew install pepperonas/tap/hollywood` brings hollywood and every program its widgets use. Without Homebrew, the installer script from the download puts it into `~/.local` and names what is missing.
+1. With Homebrew: `brew install pepperonas/tap/hollywood` brings hollywood and every program its widgets use. Without Homebrew, `curl -fsSL https://github.com/pepperonas/hollywood/releases/latest/download/install.sh | sh` puts it into `~/.local` and names what is missing.
 2. Type `hollywood` in a terminal. On a laptop screen `hollywood -s 8` is a good start: eight panes instead of one per widget.
 3. Press Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt.
 
