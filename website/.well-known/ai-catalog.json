@@ -1,0 +1,31 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "hollywood",
+    "identifier": "did:web:hollywood.celox.io",
+    "documentationUrl": "https://hollywood.celox.io/llms.txt"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:hollywood.celox.io:skills:get-hollywood",
+      "displayName": "Get hollywood",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://hollywood.celox.io/skills/get-hollywood/SKILL.md",
+      "description": "hollywood is a free, open-source (Apache-2.0) program that splits a terminal into tmux panes and fills each one with busy-looking output: a world map as ASCII art, falling characters, hex dumps, scrolling source code, SSH key art, network throughput and more - twenty widgets, dealt again every few seconds. This is the macOS port of Dustin Kirkland's hollywood: it replaces the Linux-only paths and ships small stand-ins for the programs Homebrew does not have, so it runs on a Mac with one command and behaves on Linux as before. It makes no network requests and needs no configuration.",
+      "tags": [
+        "terminal",
+        "tmux",
+        "macos",
+        "cli",
+        "screensaver",
+        "open-source"
+      ],
+      "representativeQueries": [
+        "Run hollywood hacker terminal on macOS",
+        "How do I install hollywood with Homebrew?",
+        "Download the latest hollywood release for macOS",
+        "Fake hacker screen for the terminal, open source"
+      ]
+    }
+  ]
+}

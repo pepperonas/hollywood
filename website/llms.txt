@@ -1,0 +1,55 @@
+# hollywood
+
+> hollywood is a free, open-source (Apache-2.0) program that splits a terminal into tmux panes and fills each one with busy-looking output: a world map as ASCII art, falling characters, hex dumps, scrolling source code, SSH key art, network throughput and more - twenty widgets, dealt again every few seconds. This is the macOS port of Dustin Kirkland's hollywood: it replaces the Linux-only paths and ships small stand-ins for the programs Homebrew does not have, so it runs on a Mac with one command and behaves on Linux as before. It makes no network requests and needs no configuration.
+
+Everything below is also available without JavaScript: the page's HTML carries the current version and checksums, and `/` returns Markdown for `Accept: text/markdown`.
+
+## Get the app
+
+- [Newest release](https://hollywood.celox.io/download): the file for your platform — 302 to the newest file, a verified copy served from this site (resumable)
+- [macOS · Linux](https://hollywood.celox.io/download/unix): macOS or Linux · tmux
+- [install.sh](https://hollywood.celox.io/download/installer): sh · curl · verifies the SHA-256
+- [Newest release as JSON](https://hollywood.celox.io/latest.json): `version`, `published`, `notes`, and `assets[]` with `target`, `name`, `url`, `size` (bytes), `sha256`; refreshed every 15 minutes
+- [All releases and notes](https://github.com/pepperonas/hollywood/releases)
+
+## Docs
+
+- [Product page as Markdown](https://hollywood.celox.io/index.md): features, install steps, verification, FAQ, with the current version and checksums filled in
+- [Agent skill: get hollywood](https://hollywood.celox.io/skills/get-hollywood/SKILL.md): download, verify and install, step by step
+- [Changelog](https://hollywood.celox.io/changelog.md): Markdown, mirrored from GitHub every 15 minutes
+- [README](https://github.com/pepperonas/hollywood#readme)
+
+## Install
+
+1. With Homebrew: `brew install pepperonas/tap/hollywood` brings hollywood and every program its widgets use. Without Homebrew, the installer script from the download puts it into `~/.local` and names what is missing.
+2. Type `hollywood` in a terminal. On a laptop screen `hollywood -s 8` is a good start: eight panes instead of one per widget.
+3. Press Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt.
+
+## Verify
+
+- SHA-256 of every file: `assets[].sha256` in [latest.json](https://hollywood.celox.io/latest.json)
+
+
+## Features
+
+- Twenty widgets: A world map as ASCII art, falling characters, hex dumps, source code, SSH key art, generated passwords, error codes, manual pages, process monitors, network throughput and progress bars — each in its own pane.
+- Never the same screen twice: The panes are split at random, horizontally and vertically, and after a delay all but one are closed and dealt again. `-s` sets the number of panes, `-d` the seconds between deals.
+- At home on the Mac: The original is written for Ubuntu and reads `/sys` and `/proc`. One compatibility file replaces what only Linux has, so every widget finds its material on macOS — and on Linux everything stays as it was.
+- Stand-ins for what Homebrew lacks: `ccze`, `apg` and `speedometer` are not in Homebrew, and `atop` is Linux-only. hollywood brings small replacements for all four. Install the real program and it takes over.
+- One key ends it: Ctrl-C in any pane closes the window and every widget with it. Nothing keeps running, and no other process is touched — the original ended its widgets by a name pattern that could hit unrelated programs.
+- Stays on your machine: hollywood makes no network requests, has no account, no configuration file and no telemetry. The widgets run at the lowest scheduling priority, so the show does not get in the way of real work.
+
+## Scope and limits
+
+- hollywood shows busy-looking output; it does not hack, scan or monitor anything.
+- Some widgets show real data of the machine they run on: processes, log files, file names and source files. Look at the panes before sharing the screen.
+- On macOS the stand-ins for ccze, apg, speedometer and atop look similar to the originals, not identical.
+- It needs tmux; there is no Windows version.
+- Developed and run on macOS with Apple silicon; on Linux it is covered by unit tests, not by a full run. For Debian and Ubuntu the original package is the natural choice.
+
+## Optional
+
+- [Source code](https://github.com/pepperonas/hollywood)
+- [Licence (Apache-2.0)](https://github.com/pepperonas/hollywood/blob/main/LICENSE)
+- [Agent resource catalog](https://hollywood.celox.io/.well-known/ai-catalog.json)
+- [Author: Martin Pfeffer, celox.io](https://celox.io)
