@@ -1,4 +1,5 @@
 #!/bin/sh
+. "$(dirname "$0")/../../share/hollywood/compat.sh"
 #
 # Copyright 2019 Dustin Kirkland <dustin.kirkland@gmail.com>
 #

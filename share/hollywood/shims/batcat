@@ -1,0 +1,3 @@
+#!/bin/sh
+# hollywood shim: Debian calls it batcat, everyone else calls it bat
+exec bat "$@"

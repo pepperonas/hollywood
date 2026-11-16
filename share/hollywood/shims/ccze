@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+# hollywood shim: a small stand-in for ccze(1), which Homebrew does not ship.
+# Understands the options hollywood uses:  -A  and  -c default=COLOR
+use strict;
+use warnings;
+
+my %ansi = (
+	black => 30, red => 31, green => 32, yellow => 33,
+	blue => 34, magenta => 35, cyan => 36, white => 37,
+);
+my $default = 37;
+while (@ARGV) {
+	my $a = shift @ARGV;
+	if ($a eq '-c' && @ARGV) {
+		my $spec = shift @ARGV;
+		if ($spec =~ /^default=(?:bold\s+)?(\w+)/ && exists $ansi{$1}) {
+			$default = $ansi{$1};
+		}
+	}
+}
+my $D = "\e[0;${default}m";
+sub c { my ($code, $s) = @_; return "\e[${code}m$s$D"; }
+
+$| = 1;
+while (my $line = <STDIN>) {
+	chomp $line;
+	$line =~ s{
+		(?<bad>\b(?:error|errors|fail(?:ed|ure)?|denied|fatal|panic|critical|invalid|refused|timeout)\b)
+		| (?<good>\b(?:ok|success(?:ful)?|done|granted|accepted|started|enabled|complete[d]?)\b)
+		| (?<warn>\b(?:warn(?:ing)?|notice|deprecated|retry)\b)
+		| (?<date>\b\d{4}-\d\d-\d\d\b|\b\d\d:\d\d(?::\d\d)?\b|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\b)
+		| (?<addr>\b\d{1,3}(?:\.\d{1,3}){3}\b|\b0x[0-9a-fA-F]+\b|\b[0-9a-f]{8}\b)
+		| (?<path>(?<![\w.])/[\w.+\-/]+)
+		| (?<num>\b\d+(?:\.\d+)?\b)
+		| (?<punct>[\[\](){}<>|=:])
+	}{
+		  defined $+{bad}   ? c('1;31', $+{bad})
+		: defined $+{good}  ? c('1;32', $+{good})
+		: defined $+{warn}  ? c('1;33', $+{warn})
+		: defined $+{date}  ? c('0;36', $+{date})
+		: defined $+{addr}  ? c('1;35', $+{addr})
+		: defined $+{path}  ? c('1;34', $+{path})
+		: defined $+{num}   ? c('1;37', $+{num})
+		:                     c('0;90', $+{punct})
+	}gixe;
+	print "$D$line\e[0m\n";
+}

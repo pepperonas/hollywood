@@ -54,7 +54,7 @@ spin_up() {
 WIDGET_DIR="$(dirname $0)/../lib/$PKG"
 # Determine the default number of splits based on CPU count
 # Default to 2x the number of processors, but cap at available widgets
-NPROC=$(nproc 2>/dev/null || echo 4)
+NPROC=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
 MAX_WIDGETS=$(ls "$WIDGET_DIR" | wc -l)
 DEFAULT_SPLITS=$((NPROC * 2))
 # Cap at the number of available widgets

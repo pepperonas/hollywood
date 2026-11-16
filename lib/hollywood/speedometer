@@ -1,4 +1,5 @@
 #!/bin/sh
+. "$(dirname "$0")/../../share/hollywood/compat.sh"
 #
 # Copyright 2014 Dustin Kirkland <dustin.kirkland@gmail.com>
 #
@@ -17,9 +18,8 @@
 command -v speedometer >/dev/null 2>&1 || exit 1
 
 # Find default network interface
-while read Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT; do
-	[ "$Mask" = "00000000" ] && break
-done < /proc/net/route
+Iface=$(hw_default_iface)
+[ -n "$Iface" ] || exit 1
 
 # Test if speedometer can run without errors (urwid compatibility check)
 # Run for 1 second and check exit status

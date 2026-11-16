@@ -114,3 +114,17 @@ Widget design rules:
 ## License
 
 Apache-2.0.  See the [LICENSE](LICENSE) file or [apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+## macOS
+
+Der Zweig `macos` läuft auch unter macOS. Linux verhält sich unverändert.
+
+    brew install bat bmon cmatrix figlet htop jp2a moreutils mplayer pv pygments tmux tree
+    bin/hollywood            # oder: brew install martin/local/hollywood
+
+Was angepasst ist, steht in `share/hollywood/compat.sh`, das jedes Widget
+einbindet: Linux-Pfade (`/sys`, `/proc`), GNU-Optionen von `find` und `stat`
+sowie die Schnittstelle der Standardroute.  Für Programme, die Homebrew nicht
+führt, liegen kleine Ersatzskripte in `share/hollywood/shims/` (`ccze`, `apg`,
+`speedometer`, dazu `atop` → `top` und `batcat` → `bat`).  Sie stehen am Ende
+von `PATH`, eine echte Installation hat also Vorrang.

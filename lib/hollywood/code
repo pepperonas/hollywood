@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "$0")/../../share/hollywood/compat.sh"
 #
 # Copyright 2014-2023 Dustin Kirkland <dustin.kirkland@gmail.com>
 #
@@ -21,7 +22,7 @@ command -v pygmentize >/dev/null 2>&1 && viewer="pygmentize" || viewer="cat"
 
 trap "pkill -9 -f lib/hollywood/ >/dev/null 2>&1; exit" INT
 while true; do
-	FILES=$(find /usr -readable -size +0 -type f \( -name \*.java -o -name \*.c -o -name \*.cpp -o -name \*.py \) 2>/dev/null | sort -R)
+	FILES=$(find $HW_CODE_DIRS $HW_READABLE -size +0 -type f \( -name \*.java -o -name \*.c -o -name \*.cpp -o -name \*.py \) 2>/dev/null | sort -R)
 	for f in $FILES; do
 		$viewer "$f" 2>/dev/null || true
 		sleep 2

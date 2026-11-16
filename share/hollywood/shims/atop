@@ -1,0 +1,3 @@
+#!/bin/sh
+# hollywood shim: atop is Linux-only, top is the closest native thing
+exec top -o cpu -s 2

@@ -1,4 +1,5 @@
 #!/bin/sh
+. "$(dirname "$0")/../../share/hollywood/compat.sh"
 #
 # Copyright 2014 Dustin Kirkland <dustin.kirkland@gmail.com>
 #
@@ -17,7 +18,7 @@
 command -v tree >/dev/null 2>&1 || exit 1
 
 trap "pkill -9 -f lib/hollywood/ >/dev/null 2>&1; exit" INT
-DIRS="/sys /dev"
+DIRS="$HW_NODE_DIRS"
 
 while true; do
 	for d1 in $DIRS; do

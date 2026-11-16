@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+# hollywood shim: a small stand-in for apg(1), which Homebrew does not ship.
+# Prints one pronounceable password, its syllables and its spelling,
+# roughly what "apg -qlt -n 1" shows.  All options are accepted and ignored.
+use strict;
+use warnings;
+
+my @onset = qw(b c d f g h j k l m n p r s t v w z br cr dr fr gr pr tr st sh ch th bl cl fl gl pl sl);
+my @vowel = qw(a e i o u a e i o u ai ea ou oi y);
+my @coda  = ('', '', '', qw(n r s t l m k d g x ng rd st nk));
+my %nato = (
+	a => 'alfa', b => 'bravo', c => 'charlie', d => 'delta', e => 'echo',
+	f => 'foxtrot', g => 'golf', h => 'hotel', i => 'india', j => 'juliett',
+	k => 'kilo', l => 'lima', m => 'mike', n => 'november', o => 'oscar',
+	p => 'papa', q => 'quebec', r => 'romeo', s => 'sierra', t => 'tango',
+	u => 'uniform', v => 'victor', w => 'whiskey', x => 'x_ray', y => 'yankee',
+	z => 'zulu',
+	0 => 'ZERO', 1 => 'ONE', 2 => 'TWO', 3 => 'THREE', 4 => 'FOUR',
+	5 => 'FIVE', 6 => 'SIX', 7 => 'SEVEN', 8 => 'EIGHT', 9 => 'NINE',
+);
+
+sub pick { return $_[int(rand(@_))]; }
+
+my @syl;
+for (1 .. 3 + int(rand(2))) {
+	my $s = pick(@onset) . pick(@vowel) . pick(@coda);
+	$s = ucfirst $s if rand() < 0.3;
+	push @syl, $s;
+}
+push @syl, int(rand(10)) if rand() < 0.6;
+
+my $pw = join '', @syl;
+my $spelled = join '-', map { /[A-Z]/ ? uc $nato{lc $_} : $nato{$_} } split //, $pw;
+print "$pw (" . join('-', @syl) . ") $spelled\n";
