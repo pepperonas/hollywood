@@ -1,10 +1,13 @@
+# Homebrew formula.  The copy that brew installs lives in the tap
+# (github.com/pepperonas/homebrew-tap); tools/tap-formula.sh writes it from
+# this file and the checksum of the release.
 class Hollywood < Formula
-  desc "Fill your console with Hollywood melodrama technobabble (macOS port)"
-  homepage "https://hollywood.computer"
-  url "file:///Users/martin/claude/hollywood", using: :git, branch: "macos", revision: "1488de02b8aae8d9caa1c3bd38fb1d73187aa45a"
-  version "1.27"
+  desc "Fill your console with Hollywood melodrama technobabble"
+  homepage "https://hollywood.celox.io"
+  url "https://github.com/pepperonas/hollywood/releases/download/v1.0.0/hollywood.tar.gz"
+  version "1.0.0"
+  sha256 "SHA256_OF_THE_RELEASE_ARCHIVE"
   license "Apache-2.0"
-  head "file:///Users/martin/claude/hollywood", using: :git, branch: "macos"
 
   depends_on "bat"
   depends_on "bmon"
@@ -27,7 +30,7 @@ class Hollywood < Formula
   end
 
   test do
-    assert_match "ALFA", shell_output("#{share}/hollywood/shims/apg").upcase + "ALFA"
-    system "bash", "-n", bin/"hollywood"
+    assert_match "hollywood #{version}", shell_output("#{bin}/hollywood --version")
+    assert_match(/^\w+ \(/, shell_output("#{share}/hollywood/shims/apg"))
   end
 end

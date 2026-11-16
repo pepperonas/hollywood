@@ -1,0 +1,22 @@
+hollywood for macOS
+Copyright 2026 Martin Pfeffer
+
+This product is a modified version of hollywood
+(https://github.com/dustinkirkland/hollywood), version 1.27,
+Copyright 2014-2026 Dustin Kirkland <dustin.kirkland@gmail.com>,
+licensed under the Apache License, Version 2.0.
+
+Changes made to the original work, as required by section 4(b) of the licence:
+
+- share/hollywood/compat.sh (new): platform layer sourced by every widget.
+- share/hollywood/shims/ (new): stand-ins for ccze, apg, speedometer, atop and batcat.
+- lib/hollywood/*: source the platform layer; Linux-only paths, GNU-only options and
+  the kill-by-pattern trap replaced.
+- bin/hollywood: CPU count on macOS, widgets tracked by tmux window id, --version,
+  usage error for unknown options, session closed only if the script created it.
+- Removed: wallstreet (now its own project), the Debian and snap packaging,
+  third-party screenshots.
+- Added: tests, release tooling, Homebrew formula, project page.
+
+The file share/hollywood/soundwave.mp4 and share/hollywood/map.jpg are distributed
+unchanged from the original work.

@@ -17,7 +17,7 @@
 
 command -v jp2a >/dev/null 2>&1 || exit 1
 
-trap "pkill -9 -f lib/hollywood/ >/dev/null 2>&1; exit" INT
+trap hw_quit INT
 
 PKG=hollywood
 dir="$(dirname $0)/../../share/$PKG"

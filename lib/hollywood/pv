@@ -17,7 +17,7 @@
 
 command -v pv >/dev/null 2>&1 || exit 1
 
-trap "pkill -9 -f lib/hollywood/ >/dev/null 2>&1; exit" INT
+trap hw_quit INT
 while true; do
 	dd if=/dev/urandom bs=64K count=160 2>/dev/null | pv -pterb -s 10485760 -L 1M > /dev/null
 	sleep 1

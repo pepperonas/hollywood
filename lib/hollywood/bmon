@@ -32,7 +32,7 @@ command -v bmon >/dev/null 2>&1 || exit 1
 is_too_small && exec "$(dirname "$0")/speedometer"
 
 trap 'is_too_small && fallback' WINCH
-trap 'kill "$PID" 2>/dev/null; exit' INT TERM
+trap 'kill "$PID" 2>/dev/null; hw_quit' INT TERM
 
 bmon --show-all &
 PID=$!

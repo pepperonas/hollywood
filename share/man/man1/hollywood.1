@@ -1,24 +1,25 @@
-.TH hollywood 1 "15 December 2014" hollywood "hollywood"
+.TH hollywood 1 "16 November 2026" hollywood "hollywood"
 .SH NAME
 hollywood \- fill your console with Hollywood melodrama technobabble
 
 .SH SYNOPSIS
-\fBhollywood\fP [-s|--splits SPLITS] [-d|--delay DELAY]
+\fBhollywood\fP [-s|--splits SPLITS] [-d|--delay DELAY] [-V|--version]
 
 .SH OPTIONS
 
     -d|--delay DELAY        The delay in seconds before rearranging splits (default=10s)
     -s|--splits SPLITS      The number of splits to divide your screen (default=2*nproc, capped at available widgets)
+    -V|--version            Print the version and exit
 
 .SH DESCRIPTION
 
 This utility will fill your console with Hollywood melodrama technobabble.
 
-It will split your \fBbyobu\fP(1) console into a multiple panes of genuine technobabble, perfectly suitable for any Hollywood geek melodrama.
+It will split your \fBtmux\fP(1) or \fBbyobu\fP(1) console into a multiple panes of genuine technobabble, perfectly suitable for any Hollywood geek melodrama.
 
 It is particularly suitable on any number of computer consoles in the background of any excellent schlock technothriller.
 
-To quit, press Ctrl-C to kill the \fBhollywood\fP script itself.
+To quit, press Ctrl-C in any pane.
 
 \fBhollywood\fP tries not to overwhelm your system by running widgets with the minimum scheduling priority per \fBnice\fP(1).
 
@@ -26,14 +27,18 @@ To quit, press Ctrl-C to kill the \fBhollywood\fP script itself.
 
 Some \fBhollywood\fP widgets display real system information such as running processes, log files, network interface statistics, and file system details.  This information could be sensitive in some environments.
 
-For demonstrations or presentations, consider running \fBhollywood\fP inside a container:
+For demonstrations or presentations, check what the panes show before you share your screen.
 
-    docker run \-it \-\-rm dustinkirkland/hollywood
+.SH MACOS
+
+On macOS, programs that Homebrew does not ship (\fBccze\fP, \fBapg\fP, \fBspeedometer\fP, \fBatop\fP) are replaced by small stand-ins from \fIshare/hollywood/shims\fP.  A real installation found in PATH always wins.
 
 .SH SEE ALSO
-\fBbyobu\fP(1), \fBnice\fP(1), https://hollywood.computer
+\fBtmux\fP(1), \fBbyobu\fP(1), \fBnice\fP(1), https://hollywood.celox.io
 
 .SH AUTHOR
+The macOS port is maintained by Martin Pfeffer (https://github.com/pepperonas/hollywood).
+
 This manpage and the utility were written by Dustin Kirkland <dustin.kirkland@gmail.com> for Ubuntu systems (but may be used by others).  Permission is granted to copy, distribute and/or modify this document and the utility under the terms of the Apache2 License.
 
-The complete text of the Apache2 License can be found in \fI/usr/share/common-licenses/Apache-2.0\fP on Debian/Ubuntu systems.
+The complete text of the Apache2 License is in the file LICENSE of the source distribution.

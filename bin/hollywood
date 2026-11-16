@@ -18,15 +18,15 @@
 # limitations under the License.
 
 PKG="hollywood"
-# Improved cleanup: kill the tmux session and all child processes
+VERSION="1.0.0"
 cleanup() {
-	# Kill the tmux session if it exists
-	tmux kill-session -t $PKG >/dev/null 2>&1
-	# Kill any remaining hollywood widget processes
-	pkill -9 -f "lib/hollywood/" >/dev/null 2>&1
+	trap - INT TERM EXIT
+	# Close the window the widgets live in; that ends every widget
+	[ -n "$WIN" ] && tmux kill-window -t "$WIN" >/dev/null 2>&1
+	# Take the session down only if this script created it
+	[ -n "$HOLLYWOOD_OWN_SESSION" ] && tmux kill-session -t $PKG >/dev/null 2>&1
 	exit 0
 }
-trap cleanup INT TERM EXIT
 
 spin_up() {
 	local w=
@@ -38,11 +38,11 @@ spin_up() {
 	sleep 0.5
 	for w in $(ls "$WIDGET_DIR" | sort -R); do
 		[ "$dir" = "-v" ] && dir="-h" || dir="-v"
-		panes=$(tmux list-panes -t $PKG 2>/dev/null)
+		panes=$(tmux list-panes -t "$WIN" 2>/dev/null)
 		# Allow for failed widgets
 		splits=$(echo "$panes" | wc -l)
 		pane=$((RANDOM % $splits))
-		tmux split-window $dir -t ${PKG}.$pane "nice -n 19 $WIDGET_DIR/$w" >/dev/null 2>&1
+		tmux split-window $dir -t "$WIN.$pane" "nice -n 19 $WIDGET_DIR/$w" >/dev/null 2>&1
 		sleep 0.2
 		split=$((split+1))
 		if [ $split -ge $SPLITS ]; then
@@ -51,7 +51,7 @@ spin_up() {
 	done
 }
 
-WIDGET_DIR="$(dirname $0)/../lib/$PKG"
+WIDGET_DIR="$(cd "$(dirname "$0")/../lib/$PKG" && pwd)"
 # Determine the default number of splits based on CPU count
 # Default to 2x the number of processors, but cap at available widgets
 NPROC=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
@@ -71,8 +71,16 @@ while [ ! -z "$1" ]; do
 			SPLITS="$2"
 			shift 2
 		;;
-		-h|--help|*)
+		-V|--version)
+			echo "$PKG $VERSION"
+			exit 0
+		;;
+		-h|--help)
 			exec man $PKG
+		;;
+		*)
+			echo "usage: $PKG [-s SPLITS] [-d DELAY]" >&2
+			exit 2
 		;;
 	esac
 done
@@ -90,15 +98,14 @@ if [ -z "$TMUX" ]; then
 		tmux_launcher=tmux
 	fi
 	$tmux_launcher new-session -d -s $PKG "bash"
-	$tmux_launcher send-keys -t $PKG "$0 -s $SPLITS -d $DELAY"
+	$tmux_launcher send-keys -t $PKG "HOLLYWOOD_OWN_SESSION=1 $0 -s $SPLITS -d $DELAY; exit"
 	$tmux_launcher send-keys -t $PKG Enter
 	exec $tmux_launcher attach-session -t $PKG
 	exit 1
 fi
 
-tmux new-window -n $PKG "$WIDGET_DIR/$widget1" \; \
-	set-option -g pane-active-border-bg "default" \; \
-	set-option -g pane-active-border-fg "default" >/dev/null 2>&1
+trap cleanup INT TERM EXIT
+WIN=$(tmux new-window -P -F '#{window_id}' -n $PKG "$WIDGET_DIR/$widget1") || exit 1
 
 spin_up
 
@@ -106,10 +113,10 @@ i=0
 while true; do
 	i=$((i+1))
 	if [ "$((i % DELAY))" = "0" ]; then
-		tmux kill-pane -a -t $PKG.bottom-right
+		tmux kill-pane -a -t "$WIN.{bottom-right}"
 		spin_up
 	fi
-	if [ $(tmux list-panes -t $PKG 2>/dev/null | wc -l) -gt 0 ]; then
+	if tmux list-panes -t "$WIN" -F x 2>/dev/null | grep -q x; then
 		sleep 1
 		continue
 	fi

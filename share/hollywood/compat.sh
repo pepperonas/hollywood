@@ -40,3 +40,11 @@ hw_default_iface() {
 		;;
 	esac
 }
+
+# Ctrl-C in any pane ends the show: close the window all widgets live in.
+# (Upstream ran "pkill -9 -f lib/hollywood/", which also hits every other
+# process that merely has that path on its command line, an editor for one.)
+hw_quit() {
+	[ -n "$TMUX_PANE" ] && tmux kill-window -t "$TMUX_PANE" >/dev/null 2>&1
+	exit 0
+}

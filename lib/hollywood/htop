@@ -17,7 +17,7 @@
 
 command -v htop >/dev/null 2>&1 || exit 1
 
-trap "pkill -9 -f lib/hollywood/ >/dev/null 2>&1; exit" INT
+trap hw_quit INT
 while true; do
 	htop
 done
