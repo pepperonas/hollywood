@@ -18,40 +18,84 @@
 # limitations under the License.
 
 PKG="hollywood"
-VERSION="1.0.1"
+VERSION="1.1.0"
 cleanup() {
 	trap - INT TERM EXIT
 	# Close the window the widgets live in; that ends every widget
 	[ -n "$WIN" ] && tmux kill-window -t "$WIN" >/dev/null 2>&1
-	# Take the session down only if this script created it
-	[ -n "$HOLLYWOOD_OWN_SESSION" ] && tmux kill-session -t $PKG >/dev/null 2>&1
+	# Before the session goes: this script runs inside it and dies with it
+	[ -n "$STATE" ] && rm -rf "$STATE"
+	if [ -n "$HOLLYWOOD_OWN_SESSION" ]; then
+		# The key table belongs to this show; the session only if this script created it
+		tmux unbind-key -a -T $PKG >/dev/null 2>&1
+		tmux kill-session -t $PKG >/dev/null 2>&1
+	fi
 	exit 0
+}
+
+# Widgets that may be dealt: all but the ones closed by hand in this show
+candidates() {
+	ls "$WIDGET_DIR" | grep -vxF -f "$STATE/banned" | sort -R
+}
+
+# Start one widget in a new pane and remember which pane runs it
+start_widget() {
+	local id=
+	id=$(tmux split-window "$1" -P -F '#{pane_id}' -t "$2" "nice -n 19 $WIDGET_DIR/$3" 2>/dev/null)
+	[ -n "$id" ] && echo "$id $3" >> "$STATE/panes"
 }
 
 spin_up() {
 	local w=
-	local panes=
 	local splits=
 	local pane=
 	local dir="v"
 	local split=1
 	sleep 0.5
-	for w in $(ls "$WIDGET_DIR" | sort -R); do
+	SPLITS=$(cat "$STATE/splits")
+	for w in $(candidates); do
+		# a widget that is on screen already is not dealt a second time
+		tmux list-panes -t "$WIN" -F '#{pane_id}' 2>/dev/null | while read -r id; do
+			awk -v p="$id" '$1 == p {w = $2} END {print w}' "$STATE/panes"
+		done | grep -qxF "$w" && continue
+		split=$(tmux list-panes -t "$WIN" 2>/dev/null | wc -l)
+		[ "$split" -ge "$SPLITS" ] && break
 		[ "$dir" = "-v" ] && dir="-h" || dir="-v"
-		panes=$(tmux list-panes -t "$WIN" 2>/dev/null)
 		# Allow for failed widgets
-		splits=$(echo "$panes" | wc -l)
-		pane=$((RANDOM % $splits))
-		tmux split-window $dir -t "$WIN.$pane" "nice -n 19 $WIDGET_DIR/$w" >/dev/null 2>&1
+		splits=$split
+		[ "$splits" -ge 1 ] || break
+		pane=$((RANDOM % splits))
+		start_widget $dir "$WIN.$pane" "$w"
 		sleep 0.2
-		split=$((split+1))
-		if [ $split -ge $SPLITS ]; then
-			break
-		fi
 	done
 }
 
+# Keys and mouse for the show.  They live in a key table of their own that only
+# this session uses, so nothing changes in the user's other tmux sessions - and
+# that is why a show started inside somebody's own session has no controls.
+controls() {
+	[ -n "$HOLLYWOOD_OWN_SESSION" ] || return 0
+	local ctl="'$SHARE_DIR/ctl' '$STATE'"
+	tmux set-option -t $PKG mouse on \; \
+		set-option -t $PKG key-table $PKG \; \
+		set-option -t $PKG status-left " $PKG " \; \
+		set-option -t $PKG status-right-length 100 \; \
+		set-option -t $PKG status-right " click: select  x: close  n: deal  p: pause  +/-: panes  q: quit " \; \
+		set-option -w -t "$WIN" pane-active-border-style "fg=green" \; \
+		bind-key -T $PKG MouseDown1Pane select-pane -t = \; \
+		bind-key -T $PKG MouseDown3Pane run-shell -t = "$ctl close '#{pane_id}'" \; \
+		bind-key -T $PKG x run-shell "$ctl close '#{pane_id}'" \; \
+		bind-key -T $PKG n run-shell "$ctl deal" \; \
+		bind-key -T $PKG p run-shell "$ctl pause" \; \
+		bind-key -T $PKG Space run-shell "$ctl pause" \; \
+		bind-key -T $PKG + run-shell "$ctl more" \; \
+		bind-key -T $PKG - run-shell "$ctl less" \; \
+		bind-key -T $PKG ? run-shell "$ctl help" \; \
+		bind-key -T $PKG q run-shell "$ctl quit" >/dev/null 2>&1
+}
+
 WIDGET_DIR="$(cd "$(dirname "$0")/../lib/$PKG" && pwd)"
+SHARE_DIR="$(cd "$(dirname "$0")/../share/$PKG" && pwd)"
 # Determine the default number of splits based on CPU count
 # Default to 2x the number of processors, but cap at available widgets
 NPROC=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
@@ -79,7 +123,7 @@ while [ ! -z "$1" ]; do
 			exec man $PKG
 		;;
 		*)
-			echo "usage: $PKG [-s SPLITS] [-d DELAY]" >&2
+			echo "usage: $PKG [-s SPLITS] [-d DELAY] [--version]" >&2
 			exit 2
 		;;
 	esac
@@ -104,17 +148,42 @@ if [ -z "$TMUX" ]; then
 	exit 1
 fi
 
+# What the show remembers: the pane count, which pane runs which widget, the
+# widgets closed by hand, and the flags the controls set
+STATE=$(mktemp -d "${TMPDIR:-/tmp}/$PKG.XXXXXXXX") || exit 1
+: > "$STATE/banned"
+: > "$STATE/panes"
+echo "$SPLITS" > "$STATE/splits"
+echo "$MAX_WIDGETS" > "$STATE/max"
+
 trap cleanup INT TERM EXIT
 WIN=$(tmux new-window -P -F '#{window_id}' -n $PKG "$WIDGET_DIR/$widget1") || exit 1
+echo "$WIN" > "$STATE/window"
+echo "$(tmux list-panes -t "$WIN" -F '#{pane_id}' | head -n1) $widget1" >> "$STATE/panes"
+controls
 
 spin_up
+
+deal() {
+	tmux kill-pane -a -t "$WIN.{bottom-right}"
+	# forget the panes that are gone
+	tmux list-panes -t "$WIN" -F '#{pane_id}' 2>/dev/null | while read -r id; do
+		grep "^$id " "$STATE/panes" | tail -n 1
+	done > "$STATE/panes.new"
+	mv "$STATE/panes.new" "$STATE/panes"
+	spin_up
+}
 
 i=0
 while true; do
 	i=$((i+1))
-	if [ "$((i % DELAY))" = "0" ]; then
-		tmux kill-pane -a -t "$WIN.{bottom-right}"
-		spin_up
+	if [ -e "$STATE/deal" ]; then
+		# asked for by a key: now, and the clock starts again
+		rm -f "$STATE/deal"
+		deal
+		i=0
+	elif [ ! -e "$STATE/paused" ] && [ "$((i % DELAY))" = "0" ]; then
+		deal
 	fi
 	if tmux list-panes -t "$WIN" -F x 2>/dev/null | grep -q x; then
 		sleep 1

@@ -27,6 +27,7 @@
 <!-- runtime -->
 [![Shell](https://img.shields.io/badge/written%20in-shell-4EAA25?logo=gnubash&logoColor=white)](lib/hollywood)
 [![Widgets](https://img.shields.io/badge/widgets-20-blueviolet)](#the-widgets)
+[![Interactive](https://img.shields.io/badge/mouse%20%26%20keys-interactive-blue)](#usage)
 [![Terminal](https://img.shields.io/badge/interface-terminal-black?logo=gnubash&logoColor=white)](#usage)
 [![tmux](https://img.shields.io/badge/runs%20in-tmux-1BB91F?logo=tmux&logoColor=white)](#how-it-works)
 [![No config](https://img.shields.io/badge/config-none-informational)](#usage)
@@ -122,9 +123,26 @@ hollywood --version
 | `-V`, `--version` | print the version | |
 | `-h`, `--help` | open the man page | |
 
-**To quit, press Ctrl-C in any pane.** Started from a plain terminal, hollywood creates a
-tmux session named `hollywood` and closes it again; started inside an existing tmux
-session, it opens one window there and leaves the rest alone.
+While the show runs, a status line at the bottom names the keys:
+
+| Input | What it does |
+|---|---|
+| click on a pane | select it |
+| `x`, or a right click on a pane | close that pane — its widget stays away for the rest of the show |
+| `n` | deal the panes again now |
+| `p` or space | pause the automatic dealing, and resume it |
+| `+` `-` | one pane more or fewer |
+| `?` | show the keys |
+| `q` or `Ctrl-C` | quit |
+
+The last pane cannot be closed; `q` ends the show. What you closed is forgotten when the
+show ends.
+
+Started from a plain terminal, hollywood creates a tmux session named `hollywood` and
+closes it again. The controls exist only there: they live in a key table of their own and
+need tmux's mouse support, and hollywood sets neither in a session it did not create.
+Started inside an existing tmux session, it opens one window, leaves the rest alone, and
+is steered with tmux's own keys (`Ctrl-b x` closes a pane).
 
 A machine with many cores gets many panes — on a ten-core Mac that is all twenty widgets
 at once, which wants a large window. `-s 8` is a good number for a laptop screen.
@@ -174,6 +192,9 @@ place — see below.
   that reads the interface counters, and a hand-over to `top`. They are *appended* to
   `PATH`, so a real installation always wins. Their output looks similar to the originals,
   not identical.
+- **The show can be steered.** Upstream is watch-only. Here a pane can be closed for good,
+  the deal triggered or paused and the number of panes changed while it runs — see
+  [Usage](#usage).
 - **Ctrl-C ends the show cleanly.** Upstream ran `pkill -9 -f lib/hollywood/`, which also
   killed any other process with that path on its command line — an editor with a widget
   open, for one. Here a widget closes the tmux window it lives in, and nothing else.
@@ -222,7 +243,8 @@ python3 tools/website_art.py                # banner, hero and mark
 python3 tools/badges.py                     # the three counted README badges
 ```
 
-The tests cover the launcher's options, every widget (syntax, the compatibility layer,
+The tests cover the launcher's options, the controls (against a stand-in for tmux that
+records what it is asked), every widget (syntax, the compatibility layer,
 no Linux-only paths, no kill-by-pattern), the compatibility layer under a faked `uname`
 for both platforms, and the behaviour of each stand-in. `tools/termshot.py` turns a tmux
 window into a PNG: it reads every pane's text with its colours, lays the panes out as tmux
@@ -237,7 +259,8 @@ picks the release up by itself.
 
 - **A pane is missing or empty.** Its program is not installed; `install.sh` and
   `brew info pepperonas/tap/hollywood` list them.
-- **Too many tiny panes.** Pass `-s` with a smaller number, or enlarge the window.
+- **Too many tiny panes.** Press `-` while it runs, pass `-s` with a smaller number, or enlarge the window.
+- **The keys do nothing.** hollywood was started inside a tmux session of your own; the controls exist only in the session it creates itself.
 - **The `speedometer` pane shows bars, not a graph.** That is the macOS stand-in. Install
   the real `speedometer` anywhere in your `PATH` and it takes over.
 

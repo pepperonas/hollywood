@@ -9,7 +9,7 @@
  "license": "Apache-2.0",
  "tls": "wildcard",
  "year": 2026,
- "asset_version": 3,
+ "asset_version": 4,
  "theme_source": "the terminal palette of the screenshots (tools/termshot.py): dark slate background, the green of the falling characters as primary, amber as the warm accent",
  "theme": {
   "bg": "#0b0d12",
@@ -103,6 +103,7 @@
    "Runs on macOS: Linux-only paths and options are replaced in one compatibility file",
    "Stand-ins for ccze, apg, speedometer and atop, which Homebrew does not ship",
    "Options for the number of panes and the delay between deals",
+   "Steerable while it runs: close a pane for good, deal again, pause, change the number of panes, quit",
    "Ctrl-C in any pane ends the show and leaves no process behind",
    "Installs with Homebrew or a verifying installer script; nothing to build",
    "No network requests, no configuration, no telemetry"
@@ -231,18 +232,18 @@
    },
    {
     "t": {
-     "en": "One key ends it",
-     "de": "Eine Taste beendet es",
-     "es": "Una tecla lo termina",
-     "it": "Un tasto lo chiude",
-     "fr": "Une touche y met fin"
+     "en": "You direct the show",
+     "de": "Du führst Regie",
+     "es": "Tú diriges el espectáculo",
+     "it": "Dirigi tu lo spettacolo",
+     "fr": "Vous dirigez le spectacle"
     },
     "p": {
-     "en": "Ctrl-C in any pane closes the window and every widget with it. Nothing keeps running, and no other process is touched — the original ended its widgets by a name pattern that could hit unrelated programs.",
-     "de": "Strg-C in einem beliebigen Fenster schließt das Fenster und jedes Widget darin. Nichts läuft weiter, und kein anderer Prozess wird angefasst — das Original beendete seine Widgets über ein Namensmuster, das auch fremde Programme treffen konnte.",
-     "es": "Ctrl-C en cualquier panel cierra la ventana y todos los widgets con ella. Nada sigue en marcha y no se toca ningún otro proceso: el original terminaba sus widgets con un patrón de nombre que podía alcanzar programas ajenos.",
-     "it": "Ctrl-C in un riquadro qualsiasi chiude la finestra e tutti i widget con essa. Niente resta in esecuzione e nessun altro processo viene toccato: l'originale terminava i widget con un modello di nome che poteva colpire programmi estranei.",
-     "fr": "Ctrl-C dans n'importe quel panneau ferme la fenêtre et tous les widgets avec elle. Rien ne continue de tourner et aucun autre processus n'est touché : l'original arrêtait ses widgets par un motif de nom qui pouvait atteindre des programmes sans rapport."
+     "en": "Click a pane to select it, press <code>x</code> to close it — that widget stays away for the rest of the show. <code>n</code> deals again, <code>p</code> pauses, <code>+</code> and <code>-</code> change the number of panes, <code>q</code> quits. The original can only be watched.",
+     "de": "Ein Klick wählt ein Fenster, <code>x</code> schließt es — dieses Widget bleibt für den Rest der Vorstellung weg. <code>n</code> verteilt neu, <code>p</code> hält an, <code>+</code> und <code>-</code> ändern die Zahl der Fenster, <code>q</code> beendet. Dem Original kann man nur zusehen.",
+     "es": "Haz clic en un panel para seleccionarlo y pulsa <code>x</code> para cerrarlo: ese widget no vuelve en lo que queda del espectáculo. <code>n</code> reparte de nuevo, <code>p</code> pausa, <code>+</code> y <code>-</code> cambian el número de paneles y <code>q</code> sale. El original solo se puede mirar.",
+     "it": "Clicca un riquadro per selezionarlo e premi <code>x</code> per chiuderlo: quel widget non torna per il resto dello spettacolo. <code>n</code> ridistribuisce, <code>p</code> mette in pausa, <code>+</code> e <code>-</code> cambiano il numero di riquadri, <code>q</code> esce. L'originale si può solo guardare.",
+     "fr": "Cliquez sur un panneau pour le sélectionner, appuyez sur <code>x</code> pour le fermer : ce widget ne revient plus jusqu'à la fin du spectacle. <code>n</code> redistribue, <code>p</code> met en pause, <code>+</code> et <code>-</code> changent le nombre de panneaux, <code>q</code> quitte. L'original ne peut qu'être regardé."
     }
    },
    {
@@ -422,11 +423,11 @@
      "fr": "Quitter"
     },
     "p": {
-     "en": "Press Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt.",
-     "de": "Strg-C in einem beliebigen Fenster drücken. Das Fenster schließt sich, die von hollywood gestartete tmux-Sitzung endet, und du bist zurück an der Eingabezeile.",
-     "es": "Pulsa Ctrl-C en cualquier panel. La ventana se cierra, la sesión de tmux que inició hollywood termina y vuelves a tu línea de comandos.",
-     "it": "Premi Ctrl-C in un riquadro qualsiasi. La finestra si chiude, la sessione tmux avviata da hollywood termina e torni al prompt.",
-     "fr": "Appuyez sur Ctrl-C dans n'importe quel panneau. La fenêtre se ferme, la session tmux lancée par hollywood se termine et vous retrouvez votre invite."
+     "en": "Press <code>q</code>, or Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt. The status line at the bottom names the other keys.",
+     "de": "<code>q</code> drücken oder Strg-C in einem beliebigen Fenster. Das Fenster schließt sich, die von hollywood gestartete tmux-Sitzung endet, und du bist zurück an der Eingabezeile. Die Statuszeile unten nennt die übrigen Tasten.",
+     "es": "Pulsa <code>q</code>, o Ctrl-C en cualquier panel. La ventana se cierra, la sesión de tmux que inició hollywood termina y vuelves a tu línea de comandos. La línea de estado inferior indica las demás teclas.",
+     "it": "Premi <code>q</code>, oppure Ctrl-C in un riquadro qualsiasi. La finestra si chiude, la sessione tmux avviata da hollywood termina e torni al prompt. La riga di stato in basso indica gli altri tasti.",
+     "fr": "Appuyez sur <code>q</code>, ou sur Ctrl-C dans n'importe quel panneau. La fenêtre se ferme, la session tmux lancée par hollywood se termine et vous retrouvez votre invite. La ligne d'état en bas indique les autres touches."
     }
    }
   ],

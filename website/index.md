@@ -22,7 +22,7 @@ Files in the current release:
 - **Never the same screen twice** — The panes are split at random, horizontally and vertically, and after a delay all but one are closed and dealt again. `-s` sets the number of panes, `-d` the seconds between deals.
 - **At home on the Mac** — The original is written for Ubuntu and reads `/sys` and `/proc`. One compatibility file replaces what only Linux has, so every widget finds its material on macOS — and on Linux everything stays as it was.
 - **Stand-ins for what Homebrew lacks** — `ccze`, `apg` and `speedometer` are not in Homebrew, and `atop` is Linux-only. hollywood brings small replacements for all four. Install the real program and it takes over.
-- **One key ends it** — Ctrl-C in any pane closes the window and every widget with it. Nothing keeps running, and no other process is touched — the original ended its widgets by a name pattern that could hit unrelated programs.
+- **You direct the show** — Click a pane to select it, press `x` to close it — that widget stays away for the rest of the show. `n` deals again, `p` pauses, `+` and `-` change the number of panes, `q` quits. The original can only be watched.
 - **Stays on your machine** — hollywood makes no network requests, has no account, no configuration file and no telemetry. The widgets run at the lowest scheduling priority, so the show does not get in the way of real work.
 
 ### What it looks like
@@ -38,7 +38,7 @@ Files in the current release:
 
 1. **Install** — With Homebrew: `brew install pepperonas/tap/hollywood` brings hollywood and every program its widgets use. Without Homebrew, `curl -fsSL https://github.com/pepperonas/hollywood/releases/latest/download/install.sh | sh` puts it into `~/.local` and names what is missing.
 2. **Run** — Type `hollywood` in a terminal. On a laptop screen `hollywood -s 8` is a good start: eight panes instead of one per widget.
-3. **Quit** — Press Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt.
+3. **Quit** — Press `q`, or Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt. The status line at the bottom names the other keys.
 
 ## Verify
 

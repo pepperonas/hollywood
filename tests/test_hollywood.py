@@ -64,12 +64,13 @@ class Launcher(unittest.TestCase):
         self.assertNotRegex(src, r"list-panes -t \$PKG\b")
 
     def test_session_is_only_killed_when_owned(self):
-        self.assertRegex(code(ROOT / "bin/hollywood"),
-                         r'\[ -n "\$HOLLYWOOD_OWN_SESSION" \] && tmux kill-session')
+        src = code(ROOT / "bin/hollywood")
+        self.assertEqual(src.count("kill-session"), 1)
+        self.assertRegex(src, r'if \[ -n "\$HOLLYWOOD_OWN_SESSION" \]; then\s+tmux unbind-key[^\n]*\s+tmux kill-session')
 
     def test_nothing_kills_processes_by_pattern(self):
         # upstream's "pkill -9 -f lib/hollywood/" also hit an editor with a widget open
-        for path in [ROOT / "bin/hollywood", COMPAT, *WIDGETS]:
+        for path in [ROOT / "bin/hollywood", ROOT / "share/hollywood/ctl", COMPAT, *WIDGETS]:
             self.assertNotIn("pkill", code(path), path.name)
 
 
@@ -229,6 +230,172 @@ class OtherShims(unittest.TestCase):
 
     def test_batcat_hands_over_to_bat(self):
         self.assertIn('exec bat "$@"', (SHIMS / "batcat").read_text())
+
+
+class Controls(unittest.TestCase):
+    """share/hollywood/ctl against a stand-in for tmux that records what it is asked."""
+    ctl = str(ROOT / "share/hollywood/ctl")
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = pathlib.Path(self.tmp.name)
+        self.state = root / "state"
+        self.state.mkdir()
+        (self.state / "window").write_text("@1\n")
+        (self.state / "banned").write_text("")
+        (self.state / "splits").write_text("4\n")
+        (self.state / "max").write_text("20\n")
+        (self.state / "panes").write_text("%1 map\n%2 cmatrix\n%3 hexdump\n")
+        self.panes = root / "panes"
+        self.panes.write_text("%1\n%2\n%3\n")
+        self.log = root / "log"
+        fake = root / "bin"
+        fake.mkdir()
+        (fake / "tmux").write_text(
+            '#!/bin/sh\necho "$*" >> "%s"\n'
+            'case "$1" in list-panes) cat "%s" ;; esac\n' % (self.log, self.panes))
+        (fake / "tmux").chmod(0o755)
+        self.env = dict(os.environ, PATH=str(fake) + os.pathsep + os.environ["PATH"])
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def run_ctl(self, *args):
+        return run([self.ctl, str(self.state), *args], env=self.env)
+
+    def calls(self):
+        return self.log.read_text().splitlines() if self.log.exists() else []
+
+    def banned(self):
+        return (self.state / "banned").read_text().split()
+
+    def test_close_kills_the_pane_and_bans_its_widget(self):
+        self.run_ctl("close", "%2")
+        self.assertEqual(self.banned(), ["cmatrix"])
+        self.assertIn("kill-pane -t %2", self.calls())
+
+    def test_a_widget_is_banned_only_once(self):
+        self.run_ctl("close", "%2")
+        (self.state / "panes").write_text("%1 map\n%4 cmatrix\n%3 hexdump\n")
+        self.panes.write_text("%1\n%4\n%3\n")
+        self.run_ctl("close", "%4")
+        self.assertEqual(self.banned(), ["cmatrix"])
+
+    def test_the_last_pane_cannot_be_closed(self):
+        self.panes.write_text("%1\n")
+        self.run_ctl("close", "%1")
+        self.assertEqual(self.banned(), [])
+        self.assertFalse([c for c in self.calls() if c.startswith("kill-pane")])
+
+    def test_a_pane_outside_the_show_is_left_alone(self):
+        # the key table is active in the whole session, the launcher's shell included
+        self.run_ctl("close", "%99")
+        self.assertEqual(self.banned(), [])
+        self.assertFalse([c for c in self.calls() if c.startswith("kill-pane")])
+
+    def test_a_pane_reused_by_tmux_bans_its_newest_widget(self):
+        (self.state / "panes").write_text("%1 map\n%2 cmatrix\n%3 hexdump\n%2 figlet\n")
+        self.run_ctl("close", "%2")
+        self.assertEqual(self.banned(), ["figlet"])
+
+    def test_deal_leaves_a_flag_for_the_launcher(self):
+        self.run_ctl("deal")
+        self.assertTrue((self.state / "deal").exists())
+
+    def test_pause_toggles(self):
+        self.run_ctl("pause")
+        self.assertTrue((self.state / "paused").exists())
+        self.run_ctl("pause")
+        self.assertFalse((self.state / "paused").exists())
+
+    def test_more_and_less_change_the_pane_count_and_deal(self):
+        self.run_ctl("more")
+        self.assertEqual((self.state / "splits").read_text().strip(), "5")
+        self.assertTrue((self.state / "deal").exists())
+        self.run_ctl("less")
+        self.run_ctl("less")
+        self.assertEqual((self.state / "splits").read_text().strip(), "3")
+
+    def test_the_pane_count_stays_between_one_and_the_number_of_widgets(self):
+        (self.state / "splits").write_text("1\n")
+        self.run_ctl("less")
+        self.assertEqual((self.state / "splits").read_text().strip(), "1")
+        (self.state / "splits").write_text("20\n")
+        self.run_ctl("more")
+        self.assertEqual((self.state / "splits").read_text().strip(), "20")
+
+    def test_a_damaged_pane_count_is_not_calculated_with(self):
+        (self.state / "splits").write_text("$(touch /tmp/x)\n")
+        self.assertEqual(self.run_ctl("more").returncode, 0)
+        self.assertEqual((self.state / "splits").read_text().strip(), "$(touch /tmp/x)")
+
+    def test_quit_closes_the_window_of_the_show(self):
+        self.run_ctl("quit")
+        self.assertIn("kill-window -t @1", self.calls())
+
+    def test_without_a_state_directory_nothing_happens(self):
+        r = run([self.ctl, str(self.state) + "-gone", "quit"], env=self.env)
+        self.assertEqual(r.returncode, 0)
+        self.assertEqual(self.calls(), [])
+
+
+class Interaction(unittest.TestCase):
+    src = code(ROOT / "bin/hollywood")
+
+    def function(self, name):
+        return re.search(r"^%s\(\) \{\n.*?^\}" % name, (ROOT / "bin/hollywood").read_text(), re.M | re.S).group(0)
+
+    def test_banned_widgets_are_not_dealt_again(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            pathlib.Path(tmp, "banned").write_text("cmatrix\nmap\n")
+            script = '%s\nWIDGET_DIR="%s"; STATE="%s"; candidates' % (
+                self.function("candidates"), ROOT / "lib/hollywood", tmp)
+            dealt = run(["bash", "-c", script]).stdout.split()
+        self.assertEqual(len(dealt), 18)
+        self.assertFalse({"cmatrix", "map"} & set(dealt))
+
+    def test_with_nothing_banned_everything_is_dealt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            pathlib.Path(tmp, "banned").write_text("")
+            script = '%s\nWIDGET_DIR="%s"; STATE="%s"; candidates' % (
+                self.function("candidates"), ROOT / "lib/hollywood", tmp)
+            self.assertEqual(len(run(["bash", "-c", script]).stdout.split()), 20)
+
+    def test_controls_exist_only_in_a_session_the_launcher_created(self):
+        # mouse and key-table are session options: in somebody else's session they are theirs
+        body = self.function("controls")
+        self.assertRegex(body, r'\[ -n "\$HOLLYWOOD_OWN_SESSION" \] \|\| return 0')
+        outside = self.src.replace(COMMENT.sub("", body), "")
+        for word in (r"mouse on", r"key-table", r"(?<!un)bind-key"):
+            self.assertNotRegex(outside, word)
+
+    def test_keys_live_in_their_own_table_not_in_root(self):
+        body = COMMENT.sub("", self.function("controls"))
+        binds = re.findall(r"bind-key (.*)", body)
+        self.assertGreaterEqual(len(binds), 9)
+        self.assertTrue(all(b.startswith("-T $PKG ") for b in binds), binds)
+
+    def test_every_key_in_the_status_line_is_bound(self):
+        body = COMMENT.sub("", self.function("controls"))
+        for key in ("MouseDown1Pane", "MouseDown3Pane", "x", "n", "p", "+", "-", "q"):
+            self.assertRegex(body, r"bind-key -T \$PKG %s " % re.escape(key))
+
+    def test_the_state_is_removed_before_the_session_is_killed(self):
+        # the launcher runs inside the session and dies with it
+        body = self.function("cleanup")
+        self.assertLess(body.index('rm -rf "$STATE"'), body.index("kill-session"))
+
+    def test_the_key_table_is_cleared_on_the_way_out(self):
+        self.assertIn("unbind-key -a -T $PKG", self.function("cleanup"))
+
+    def test_a_deal_asked_by_key_restarts_the_clock(self):
+        loop = self.src[self.src.index("i=0\nwhile true"):]
+        self.assertRegex(loop, r'if \[ -e "\$STATE/deal" \]; then\s+rm -f "\$STATE/deal"\s+deal\s+i=0')
+        self.assertRegex(loop, r'elif \[ ! -e "\$STATE/paused" \] &&')
+
+    def test_ctl_is_executable_and_valid(self):
+        self.assertTrue(os.access(ROOT / "share/hollywood/ctl", os.X_OK))
+        self.assertEqual(run(["sh", "-n", str(ROOT / "share/hollywood/ctl")]).returncode, 0)
 
 
 class Project(unittest.TestCase):

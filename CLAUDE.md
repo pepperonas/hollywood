@@ -16,6 +16,21 @@ brew `pepperonas/tap/hollywood`. The sister project is `~/claude/wallstreet`.
   `badges.py`, `release_notes.py`, `tap-formula.sh`.
 - `website/` — project page, built with `~/claude/_templates/apps/product-page` from `website/site.json`.
 
+## Controls (1.1.0)
+
+- `share/hollywood/ctl STATE <close PANE|deal|pause|more|less|help|quit>` is what the keys
+  run. It only writes flags into the show's state directory (`mktemp -d …/hollywood.XXXXXXXX`:
+  `window`, `splits`, `max`, `panes`, `banned`, `deal`, `paused`) and talks to tmux; the
+  launcher's loop reads them once a second.
+- Keys are bound in the tmux key table `hollywood`, which is the session option `key-table`
+  of the own session only. Never bind in `root` and never set `mouse`/`key-table` in a
+  session the launcher did not create (`HOLLYWOOD_OWN_SESSION`) — tests pin both.
+- `cleanup` removes the state directory **before** `kill-session`: the launcher runs inside
+  that session and dies with it (the directory stayed behind, found in the first run).
+- Testing the bindings needs a client: `script -q /dev/null tmux attach -t hollywood &`,
+  then `tmux send-keys -K -c <client> x`. Plain `send-keys -t pane` bypasses key tables.
+  Mouse buttons were not exercised, only the keys.
+
 ## Rules
 
 - Version lives in `VERSION` **and** `bin/hollywood` (`VERSION="…"`), `CHANGELOG.md` and

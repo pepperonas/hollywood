@@ -1,0 +1,69 @@
+#!/bin/sh
+# hollywood control: what the keys and mouse buttons of a running show do.
+#
+#   ctl STATE close PANE_ID   close that pane; its widget stays away for this session
+#   ctl STATE deal            deal the panes again now
+#   ctl STATE pause           stop or resume the automatic dealing
+#   ctl STATE more | less     one pane more or fewer, then deal
+#   ctl STATE help            show the keys
+#   ctl STATE quit            end the show
+#
+# STATE is the directory bin/hollywood keeps for the running show.  This script
+# only writes small files there and talks to tmux; the launcher's loop reads them.
+
+state=$1
+cmd=$2
+pane=$3
+[ -d "$state" ] || exit 0
+win=$(cat "$state/window" 2>/dev/null)
+[ -n "$win" ] || exit 0
+
+say() { tmux display-message -d 2500 "hollywood: $*" 2>/dev/null; }
+keys="click: select   x / right click: close   n: deal now   p: pause   + -: panes   q: quit"
+
+case "$cmd" in
+	close)
+		# only panes of the show, never the shell the launcher runs in
+		tmux list-panes -t "$win" -F '#{pane_id}' 2>/dev/null | grep -qxF "$pane" || exit 0
+		if [ "$(tmux list-panes -t "$win" 2>/dev/null | wc -l)" -le 1 ]; then
+			say "the last pane stays - q quits"
+			exit 0
+		fi
+		widget=$(awk -v p="$pane" '$1 == p {w = $2} END {print w}' "$state/panes" 2>/dev/null)
+		if [ -n "$widget" ]; then
+			grep -qxF "$widget" "$state/banned" 2>/dev/null || echo "$widget" >> "$state/banned"
+			say "$widget closed for this session"
+		fi
+		tmux kill-pane -t "$pane" 2>/dev/null
+	;;
+	deal)
+		: > "$state/deal"
+	;;
+	pause)
+		if [ -e "$state/paused" ]; then
+			rm -f "$state/paused"
+			say "dealing again"
+		else
+			: > "$state/paused"
+			say "paused - p resumes, n deals once"
+		fi
+	;;
+	more|less)
+		n=$(cat "$state/splits" 2>/dev/null)
+		max=$(cat "$state/max" 2>/dev/null)
+		case "$n" in ''|*[!0-9]*) exit 0 ;; esac
+		[ "$cmd" = more ] && n=$((n + 1)) || n=$((n - 1))
+		[ "$n" -lt 1 ] && n=1
+		[ -n "$max" ] && [ "$n" -gt "$max" ] && n=$max
+		echo "$n" > "$state/splits"
+		: > "$state/deal"
+		say "$n panes"
+	;;
+	help)
+		tmux display-message -d 6000 "$keys" 2>/dev/null
+	;;
+	quit)
+		tmux kill-window -t "$win" 2>/dev/null
+	;;
+esac
+exit 0

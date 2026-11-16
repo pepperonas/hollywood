@@ -17,9 +17,9 @@
   <meta name="color-scheme" content="dark">
   <meta name="format-detection" content="telephone=no">
   <link rel="canonical" href="https://hollywood.celox.io/">
-  <link rel="icon" href="assets/mark.svg?v=3" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3">
-  <link rel="preload" as="image" type="image/webp" imagesrcset="assets/hero-1400.webp?v=3 1400w, assets/hero-2400.webp?v=3 2400w" imagesizes="100vw">
+  <link rel="icon" href="assets/mark.svg?v=4" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=4">
+  <link rel="preload" as="image" type="image/webp" imagesrcset="assets/hero-1400.webp?v=4 1400w, assets/hero-2400.webp?v=4 2400w" imagesizes="100vw">
   <!-- For agents and tools: machine-readable facts about the app and its newest release. -->
   <link rel="ai-catalog" href="/.well-known/ai-catalog.json" type="application/json">
   <link rel="alternate" type="text/markdown" href="/llms.txt" title="hollywood for LLMs and agents">
@@ -37,8 +37,8 @@
   <meta property="og:locale:alternate" content="es_ES">
   <meta property="og:locale:alternate" content="it_IT">
   <meta property="og:locale:alternate" content="fr_FR">
-  <meta property="og:image" content="https://hollywood.celox.io/assets/og.jpg?v=3">
-  <meta property="og:image:secure_url" content="https://hollywood.celox.io/assets/og.jpg?v=3">
+  <meta property="og:image" content="https://hollywood.celox.io/assets/og.jpg?v=4">
+  <meta property="og:image:secure_url" content="https://hollywood.celox.io/assets/og.jpg?v=4">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -46,7 +46,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="hollywood — your terminal, ready for its close‑up.">
   <meta name="twitter:description" content="The hacker screen from every film, in your own terminal. Free, open source, macOS and Linux.">
-  <meta name="twitter:image" content="https://hollywood.celox.io/assets/og.jpg?v=3">
+  <meta name="twitter:image" content="https://hollywood.celox.io/assets/og.jpg?v=4">
   <meta name="twitter:image:alt" content="A terminal split into nine panes: a world map, falling characters, source code, a hex dump, block letters, a key fingerprint, passwords, network throughput and a progress bar">
 
   <script type="application/ld+json">
@@ -58,7 +58,7 @@
   "name": "hollywood",
   "description": "hollywood is a free, open-source (Apache-2.0) program that splits a terminal into tmux panes and fills each one with busy-looking output: a world map as ASCII art, falling characters, hex dumps, scrolling source code, SSH key art, network throughput and more - twenty widgets, dealt again every few seconds. This is the macOS port of Dustin Kirkland's hollywood: it replaces the Linux-only paths and ships small stand-ins for the programs Homebrew does not have, so it runs on a Mac with one command and behaves on Linux as before. It makes no network requests and needs no configuration.",
   "url": "https://hollywood.celox.io/",
-  "image": "https://hollywood.celox.io/assets/og.jpg?v=3",
+  "image": "https://hollywood.celox.io/assets/og.jpg?v=4",
   "operatingSystem": "macOS, Linux",
   "applicationCategory": "UtilitiesApplication",
   "downloadUrl": "https://hollywood.celox.io/download",
@@ -95,6 +95,7 @@
    "Runs on macOS: Linux-only paths and options are replaced in one compatibility file",
    "Stand-ins for ccze, apg, speedometer and atop, which Homebrew does not ship",
    "Options for the number of panes and the delay between deals",
+   "Steerable while it runs: close a pane for good, deal again, pause, change the number of panes, quit",
    "Ctrl-C in any pane ends the show and leaves no process behind",
    "Installs with Homebrew or a verifying installer script; nothing to build",
    "No network requests, no configuration, no telemetry"
@@ -111,12 +112,12 @@
   },
   "applicationSubCategory": "Terminal screensaver",
   "screenshot": [
-   "https://hollywood.celox.io/assets/gallery/stage.jpg?v=3",
-   "https://hollywood.celox.io/assets/gallery/map.jpg?v=3",
-   "https://hollywood.celox.io/assets/gallery/cmatrix.jpg?v=3",
-   "https://hollywood.celox.io/assets/gallery/hexdump.jpg?v=3",
-   "https://hollywood.celox.io/assets/gallery/code.jpg?v=3",
-   "https://hollywood.celox.io/assets/gallery/apg.jpg?v=3"
+   "https://hollywood.celox.io/assets/gallery/stage.jpg?v=4",
+   "https://hollywood.celox.io/assets/gallery/map.jpg?v=4",
+   "https://hollywood.celox.io/assets/gallery/cmatrix.jpg?v=4",
+   "https://hollywood.celox.io/assets/gallery/hexdump.jpg?v=4",
+   "https://hollywood.celox.io/assets/gallery/code.jpg?v=4",
+   "https://hollywood.celox.io/assets/gallery/apg.jpg?v=4"
   ]
  },
  {
@@ -142,7 +143,7 @@
     "@type": "HowToStep",
     "position": 3,
     "name": "Quit",
-    "text": "Press Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt."
+    "text": "Press q, or Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt. The status line at the bottom names the other keys."
    }
   ]
  },
@@ -203,18 +204,18 @@
 ]
   </script>
 
-  <link rel="stylesheet" href="styles.css?v=3">
-  <script src="i18n.js?v=3" defer></script>
-  <script src="app.js?v=3" defer></script>
-  <script src="changelog.js?v=3" defer></script>
-  <script src="webmcp.js?v=3" defer></script>
+  <link rel="stylesheet" href="styles.css?v=4">
+  <script src="i18n.js?v=4" defer></script>
+  <script src="app.js?v=4" defer></script>
+  <script src="changelog.js?v=4" defer></script>
+  <script src="webmcp.js?v=4" defer></script>
 </head>
 <body>
   <a class="skip" href="#main" data-i18n="skip">Skip to content</a>
 
   <header class="bar">
     <a class="brand" href="#top" aria-label="hollywood">
-      <img src="assets/mark.svg?v=3" alt="" width="28" height="28">
+      <img src="assets/mark.svg?v=4" alt="" width="28" height="28">
       <span>hollywood</span>
     </a>
     <nav class="bar-links" aria-label="Main">
@@ -247,8 +248,8 @@
     <section class="hero" id="top">
       <picture class="hero-bg" aria-hidden="true">
         <source type="image/webp" sizes="100vw"
-                srcset="assets/hero-1400.webp?v=3 1400w, assets/hero-2400.webp?v=3 2400w">
-        <img src="assets/hero.jpg?v=3" alt="" width="2912" height="1440" fetchpriority="high">
+                srcset="assets/hero-1400.webp?v=4 1400w, assets/hero-2400.webp?v=4 2400w">
+        <img src="assets/hero.jpg?v=4" alt="" width="2912" height="1440" fetchpriority="high">
       </picture>
       <div class="hero-scrim" aria-hidden="true"></div>
 
@@ -299,8 +300,8 @@
           <p data-i18n="f4.p"><code>ccze</code>, <code>apg</code> and <code>speedometer</code> are not in Homebrew, and <code>atop</code> is Linux-only. hollywood brings small replacements for all four. Install the real program and it takes over.</p>
         </article>
         <article class="card">
-          <h3 data-i18n="f5.t">One key ends it</h3>
-          <p data-i18n="f5.p">Ctrl-C in any pane closes the window and every widget with it. Nothing keeps running, and no other process is touched — the original ended its widgets by a name pattern that could hit unrelated programs.</p>
+          <h3 data-i18n="f5.t">You direct the show</h3>
+          <p data-i18n="f5.p">Click a pane to select it, press <code>x</code> to close it — that widget stays away for the rest of the show. <code>n</code> deals again, <code>p</code> pauses, <code>+</code> and <code>-</code> change the number of panes, <code>q</code> quits. The original can only be watched.</p>
         </article>
         <article class="card">
           <h3 data-i18n="f6.t">Stays on your machine</h3>
@@ -315,8 +316,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="stage" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/stage.webp?v=3" type="image/webp">
-              <img src="assets/gallery/stage.jpg?v=3" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/stage.webp?v=4" type="image/webp">
+              <img src="assets/gallery/stage.jpg?v=4" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g1.t" alt="The full show">
             </picture>
           </button>
@@ -325,8 +326,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="map" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/map.webp?v=3" type="image/webp">
-              <img src="assets/gallery/map.jpg?v=3" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/map.webp?v=4" type="image/webp">
+              <img src="assets/gallery/map.jpg?v=4" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g2.t" alt="World map">
             </picture>
           </button>
@@ -335,8 +336,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="cmatrix" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/cmatrix.webp?v=3" type="image/webp">
-              <img src="assets/gallery/cmatrix.jpg?v=3" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/cmatrix.webp?v=4" type="image/webp">
+              <img src="assets/gallery/cmatrix.jpg?v=4" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g3.t" alt="Falling characters">
             </picture>
           </button>
@@ -345,8 +346,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="hexdump" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/hexdump.webp?v=3" type="image/webp">
-              <img src="assets/gallery/hexdump.jpg?v=3" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/hexdump.webp?v=4" type="image/webp">
+              <img src="assets/gallery/hexdump.jpg?v=4" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g4.t" alt="Hex dump">
             </picture>
           </button>
@@ -355,8 +356,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="code" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/code.webp?v=3" type="image/webp">
-              <img src="assets/gallery/code.jpg?v=3" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/code.webp?v=4" type="image/webp">
+              <img src="assets/gallery/code.jpg?v=4" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g5.t" alt="Source code">
             </picture>
           </button>
@@ -365,8 +366,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="apg" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/apg.webp?v=3" type="image/webp">
-              <img src="assets/gallery/apg.jpg?v=3" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/apg.webp?v=4" type="image/webp">
+              <img src="assets/gallery/apg.jpg?v=4" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g6.t" alt="Passwords">
             </picture>
           </button>
@@ -391,7 +392,7 @@
         <li class="card">
           <span class="num">3</span>
           <h3 data-i18n="i3.t">Quit</h3>
-          <p data-i18n="i3.p">Press Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt.</p>
+          <p data-i18n="i3.p">Press <code>q</code>, or Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt. The status line at the bottom names the other keys.</p>
         </li>
       </ol>
 

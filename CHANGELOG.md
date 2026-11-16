@@ -7,6 +7,29 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-17
+
+### Added
+- **The show can be steered.** A status line at the bottom names the keys:
+
+  | Input | What it does |
+  |---|---|
+  | click on a pane | select it |
+  | `x`, or a right click on a pane | close that pane - its widget stays away for the rest of the show |
+  | `n` | deal the panes again now |
+  | `p` or space | pause the automatic dealing, and resume it |
+  | `+` `-` | one pane more or fewer |
+  | `?` | show the keys |
+  | `q` | quit (Ctrl-C still works) |
+
+- A widget that is on screen is not dealt a second time into another pane.
+
+### Changed
+- The controls live in a tmux key table of their own, which only the session that
+  hollywood creates uses, and tmux's mouse support is switched on there only. A show
+  started inside a tmux session of yours changes neither and therefore has no controls.
+- The keys above no longer reach the programs in the panes (`q` in `htop`, for one).
+
 ## [1.0.1] - 2026-11-16
 
 ### Changed
