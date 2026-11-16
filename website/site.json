@@ -9,7 +9,7 @@
  "license": "Apache-2.0",
  "tls": "wildcard",
  "year": 2026,
- "asset_version": 2,
+ "asset_version": 3,
  "theme_source": "the terminal palette of the screenshots (tools/termshot.py): dark slate background, the green of the falling characters as primary, amber as the warm accent",
  "theme": {
   "bg": "#0b0d12",
@@ -363,20 +363,20 @@
     }
    },
    {
-    "id": "mplayer",
+    "id": "apg",
     "t": {
-     "en": "Sound wave",
-     "de": "Schallwelle",
-     "es": "Onda de sonido",
-     "it": "Onda sonora",
-     "fr": "Onde sonore"
+     "en": "Passwords",
+     "de": "Passwörter",
+     "es": "Contraseñas",
+     "it": "Password",
+     "fr": "Mots de passe"
     },
     "p": {
-     "en": "A video, played as characters.",
-     "de": "Ein Video, als Zeichen abgespielt.",
-     "es": "Un vídeo, reproducido con caracteres.",
-     "it": "Un video, riprodotto con caratteri.",
-     "fr": "Une vidéo, jouée en caractères."
+     "en": "Generated, pronounceable and spelled out.",
+     "de": "Erzeugt, aussprechbar und buchstabiert.",
+     "es": "Generadas, pronunciables y deletreadas.",
+     "it": "Generate, pronunciabili e compitate.",
+     "fr": "Générés, prononçables et épelés."
     }
    }
   ],

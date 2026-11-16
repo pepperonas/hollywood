@@ -105,6 +105,10 @@ class Widgets(unittest.TestCase):
         for w in WIDGETS:
             self.assertIn("hw_quit", w.read_text(), w.name)
 
+    def test_key_art_does_not_show_user_and_host(self):
+        # ssh-keygen's default comment is user@host and ends up in the fingerprint line
+        self.assertRegex(code(ROOT / "lib/hollywood/sshart"), r'ssh-keygen [^\n]*-C "hollywood"')
+
     def test_picture_widget_survives_spaces_in_paths(self):
         self.assertIn("while IFS= read -r f", code(ROOT / "lib/hollywood/jp2a"))
 

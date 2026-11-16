@@ -32,12 +32,26 @@ sleep 14
 shot stage
 
 # Single widgets, large
-one() { fresh "$2" "$3" "$W/$1"; sleep "${4:-7}"; shot "$1"; }
+# Wait until the pane really shows something: a picture of an empty pane is
+# worse than none (the sound wave has dark stretches, cmatrix starts empty).
+filled() { [ "$(tmux capture-pane -p -t $S | grep -c '[^[:space:]]')" -ge "$1" ]; }
+one() {
+	fresh "$2" "$3" "$W/$1"
+	sleep "${4:-7}"
+	tries=0
+	until filled $(($3 / 2)); do
+		tries=$((tries + 1))
+		[ "$tries" -le 40 ] || { echo "screenshots: $1 stays empty" >&2; exit 1; }
+		sleep 1
+	done
+	shot "$1"
+}
 one map 120 36 5
 one cmatrix 120 36 9
 one hexdump 120 36 6
 one code 120 36 8
-one sshart 60 20 5
-one mplayer 120 36 8
+# the key art alone: a pane this low shows the last lines only, not the temp path above them
+one sshart 44 12 5
+one apg 120 30 8
 
 tmux kill-session -t $S 2>/dev/null || true

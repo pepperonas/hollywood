@@ -7,6 +7,18 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-16
+
+### Changed
+- The key-art widget gives its throw-away key the comment `hollywood`. Without it
+  `ssh-keygen` used `user@host`, so every key fingerprint on screen - and every
+  screenshot of it - carried the name of the user and the machine.
+
+### Fixed
+- `tools/screenshots.sh` waits until a pane really shows something before it takes the
+  picture, and no longer photographs the sound-wave widget, whose dark stretches came out
+  as an empty pane.
+
 ## [1.0.0] - 2026-11-16
 
 First release of the macOS port. It is based on

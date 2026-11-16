@@ -160,7 +160,7 @@ place — see below.
 | | | |
 |---|---|---|
 | ![The world map widget](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/map.png) | ![The cmatrix widget](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/cmatrix.png) | ![The hex dump widget](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/hexdump.png) |
-| ![Source code scrolling by](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/code.png) | ![The sound wave as ASCII video](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/mplayer.png) | ![An SSH key fingerprint as random art](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/sshart.png) |
+| ![Source code scrolling by](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/code.png) | ![Generated passwords with their spelling](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/apg.png) | ![An SSH key fingerprint as random art](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/sshart.png) |
 
 ## What the macOS port changes
 

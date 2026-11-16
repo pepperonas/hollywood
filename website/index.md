@@ -32,7 +32,7 @@ Files in the current release:
 - **Falling characters** — The one everybody knows. ([image](https://hollywood.celox.io/assets/gallery/cmatrix.jpg))
 - **Hex dump** — System binaries, byte by byte, in colour. ([image](https://hollywood.celox.io/assets/gallery/hexdump.jpg))
 - **Source code** — Files from the system, highlighted and scrolling by. ([image](https://hollywood.celox.io/assets/gallery/code.jpg))
-- **Sound wave** — A video, played as characters. ([image](https://hollywood.celox.io/assets/gallery/mplayer.jpg))
+- **Passwords** — Generated, pronounceable and spelled out. ([image](https://hollywood.celox.io/assets/gallery/apg.jpg))
 
 ## Install
 

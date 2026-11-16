@@ -93,8 +93,8 @@ window.SITE_I18N = {
     "g4.p": "Systemprogramme, Byte für Byte, in Farbe.",
     "g5.t": "Quelltext",
     "g5.p": "Dateien vom System, eingefärbt und durchlaufend.",
-    "g6.t": "Schallwelle",
-    "g6.p": "Ein Video, als Zeichen abgespielt."
+    "g6.t": "Passwörter",
+    "g6.p": "Erzeugt, aussprechbar und buchstabiert."
   },
   "es": {
     "skip": "Saltar al contenido",
@@ -187,8 +187,8 @@ window.SITE_I18N = {
     "g4.p": "Binarios del sistema, byte a byte, en color.",
     "g5.t": "Código fuente",
     "g5.p": "Archivos del sistema, resaltados y en movimiento.",
-    "g6.t": "Onda de sonido",
-    "g6.p": "Un vídeo, reproducido con caracteres."
+    "g6.t": "Contraseñas",
+    "g6.p": "Generadas, pronunciables y deletreadas."
   },
   "it": {
     "skip": "Vai al contenuto",
@@ -281,8 +281,8 @@ window.SITE_I18N = {
     "g4.p": "Binari di sistema, byte per byte, a colori.",
     "g5.t": "Codice sorgente",
     "g5.p": "File di sistema, evidenziati e in scorrimento.",
-    "g6.t": "Onda sonora",
-    "g6.p": "Un video, riprodotto con caratteri."
+    "g6.t": "Password",
+    "g6.p": "Generate, pronunciabili e compitate."
   },
   "fr": {
     "skip": "Aller au contenu",
@@ -375,7 +375,7 @@ window.SITE_I18N = {
     "g4.p": "Des binaires système, octet par octet, en couleur.",
     "g5.t": "Code source",
     "g5.p": "Des fichiers du système, colorés et défilants.",
-    "g6.t": "Onde sonore",
-    "g6.p": "Une vidéo, jouée en caractères."
+    "g6.t": "Mots de passe",
+    "g6.p": "Générés, prononçables et épelés."
   }
 };

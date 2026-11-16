@@ -23,7 +23,8 @@ trap 'rm -rf "$tmpdir" 2>/dev/null; hw_quit' INT
 while true; do
 	tmpfile=$(mktemp -p "$tmpdir")
 	rm -f "$tmpfile"
-	art=$(ssh-keygen -vvv -t ed25519 -N "" -f "$tmpfile")
+	# -C: without it the key comment is user@host, shown on screen in every picture
+	art=$(ssh-keygen -vvv -t ed25519 -N "" -C "hollywood" -f "$tmpfile")
 	rm -f "$tmpfile" "$tmpfile.pub"
 	wait
 	clear
