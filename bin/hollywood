@@ -18,9 +18,9 @@
 # limitations under the License.
 
 PKG="hollywood"
-VERSION="1.2.0"
+VERSION="1.3.0"
 cleanup() {
-	trap - INT TERM EXIT
+	trap - INT TERM HUP EXIT
 	# Close the window the widgets live in; that ends every widget
 	[ -n "$WIN" ] && tmux kill-window -t "$WIN" >/dev/null 2>&1
 	# Before the session goes: this script runs inside it and dies with it
@@ -44,8 +44,8 @@ start_widget() {
 	id=$(tmux split-window "$1" -P -F '#{pane_id}' -t "$2" "nice -n 19 $WIDGET_DIR/$3" 2>/dev/null)
 	[ -n "$id" ] || return 0
 	echo "$id $3" >> "$STATE/panes"
-	# the name on the pane's border
-	tmux set-option -p -t "$id" @widget "$3" >/dev/null 2>&1
+	# the name on the pane's border, and since when it is shown
+	tmux set-option -p -t "$id" @widget "$3" \; set-option -p -t "$id" @since "$(date +%s)" >/dev/null 2>&1
 }
 
 spin_up() {
@@ -85,14 +85,14 @@ toolbar() {
 	elif [ -e "$STATE/paused" ]; then
 		state="#[fg=colour220]paused"
 	else
-		state="next deal in $1 s"
+		state="next $CHANGE in $1 s"
 	fi
 	local restore=
 	[ "${closed:-0}" -gt 0 ] && restore="#[range=user|restore]$b r back ($closed) $e"
 	tmux set-option -t $PKG status-format[0] "#[fg=colour114,bold] $PKG #[default] \
-#[range=user|close]$b x close $e#[range=user|menu]$b a open $e$restore\
-#[range=user|deal]$b n deal $e#[range=user|pause]$b p pause $e#[range=user|zoom]$b z zoom $e\
-#[range=user|less]$b - $e$(cat "$STATE/splits") panes #[range=user|more]$b + $e\
+#[range=user|swap]$b s swap $e#[range=user|keep]$b k keep $e#[range=user|close]$b x close $e#[range=user|menu]$b a open $e$restore\
+#[range=user|zoom]$b z zoom $e#[range=user|pause]$b p pause $e#[range=user|deal]$b n deal $e\
+#[range=user|less]$b - $e$(tmux list-panes -t "$WIN" -F x 2>/dev/null | wc -l | tr -d ' ') panes #[range=user|more]$b + $e\
 #[range=user|help]$b ? $e#[range=user|quit]$b q quit $e#[align=right]#[fg=colour244]$state " >/dev/null 2>&1
 }
 
@@ -108,7 +108,7 @@ controls() {
 		set-option -t $PKG key-table $PKG \; \
 		set-option -t $PKG status-style "bg=colour235,fg=colour246" \; \
 		set-option -w -t "$WIN" pane-border-status top \; \
-		set-option -w -t "$WIN" pane-border-format "#{?pane_active,#[fg=colour114 bold],#[fg=colour244]} #{@widget} " \; \
+		set-option -w -t "$WIN" pane-border-format "#{?pane_active,#[fg=colour114 bold],#[fg=colour244]} #{@widget}#{?@keep, [kept],} " \; \
 		set-option -w -t "$WIN" pane-border-style "fg=colour238" \; \
 		set-option -w -t "$WIN" pane-active-border-style "fg=colour114" \; \
 		bind-key -T $PKG MouseDown1Pane select-pane -t = \; \
@@ -117,6 +117,8 @@ controls() {
 		bind-key -T $PKG MouseDrag1Border resize-pane -M \; \
 		bind-key -T $PKG MouseDown1Status run-shell -b "$ctl button '#{mouse_status_range}'" \; \
 		bind-key -T $PKG x run-shell -b "$ctl close '#{pane_id}'" \; \
+		bind-key -T $PKG s run-shell -b "$ctl swap '#{pane_id}'" \; \
+		bind-key -T $PKG k run-shell -b "$ctl keep '#{pane_id}'" \; \
 		bind-key -T $PKG z run-shell -b "$ctl zoom '#{pane_id}'" \; \
 		bind-key -T $PKG a run-shell -b "$ctl menu" \; \
 		bind-key -T $PKG r run-shell -b "$ctl restore" \; \
@@ -125,7 +127,7 @@ controls() {
 		bind-key -T $PKG Space run-shell -b "$ctl pause" \; \
 		bind-key -T $PKG + run-shell -b "$ctl more" \; \
 		bind-key -T $PKG - run-shell -b "$ctl less" \; \
-		bind-key -T $PKG ? display-popup -w 54 -h 21 -T " $PKG " -E "$ctl helppage" \; \
+		bind-key -T $PKG ? display-popup -w 54 -h 25 -T " $PKG " -E "$ctl helppage" \; \
 		bind-key -T $PKG q run-shell -b "$ctl quit" >/dev/null 2>&1
 }
 
@@ -139,7 +141,10 @@ DEFAULT_SPLITS=$((NPROC * 2))
 # Cap at the number of available widgets
 [ $DEFAULT_SPLITS -gt $MAX_WIDGETS ] && DEFAULT_SPLITS=$MAX_WIDGETS
 SPLITS=$DEFAULT_SPLITS
-DELAY=10
+DELAY=15
+# what happens by itself every DELAY seconds: one pane gets another widget
+# (swap), or - as upstream does it, with -r - the whole screen is built anew
+CHANGE=swap
 while [ ! -z "$1" ]; do
 	case "$1" in
 		-d|--delay)
@@ -150,6 +155,10 @@ while [ ! -z "$1" ]; do
 			SPLITS="$2"
 			shift 2
 		;;
+		-r|--redeal)
+			CHANGE=deal
+			shift
+		;;
 		-V|--version)
 			echo "$PKG $VERSION"
 			exit 0
@@ -158,7 +167,7 @@ while [ ! -z "$1" ]; do
 			exec man $PKG
 		;;
 		*)
-			echo "usage: $PKG [-s SPLITS] [-d DELAY] [--version]" >&2
+			echo "usage: $PKG [-s SPLITS] [-d DELAY] [-r] [--version]" >&2
 			exit 2
 		;;
 	esac
@@ -177,7 +186,7 @@ if [ -z "$TMUX" ]; then
 		tmux_launcher=tmux
 	fi
 	$tmux_launcher new-session -d -s $PKG "bash"
-	$tmux_launcher send-keys -t $PKG "HOLLYWOOD_OWN_SESSION=1 $0 -s $SPLITS -d $DELAY; exit"
+	$tmux_launcher send-keys -t $PKG "HOLLYWOOD_OWN_SESSION=1 $0 -s $SPLITS -d $DELAY$([ $CHANGE = deal ] && echo ' -r'); exit"
 	$tmux_launcher send-keys -t $PKG Enter
 	exec $tmux_launcher attach-session -t $PKG
 	exit 1
@@ -192,19 +201,26 @@ echo "$SPLITS" > "$STATE/splits"
 echo "$MAX_WIDGETS" > "$STATE/max"
 echo "$WIDGET_DIR" > "$STATE/widgets"
 
-trap cleanup INT TERM EXIT
+trap cleanup INT TERM HUP EXIT
 WIN=$(tmux new-window -P -F '#{window_id}' -n $PKG "$WIDGET_DIR/$widget1") || exit 1
 echo "$WIN" > "$STATE/window"
 first=$(tmux list-panes -t "$WIN" -F '#{pane_id}' | head -n1)
 echo "$first $widget1" >> "$STATE/panes"
-tmux set-option -p -t "$first" @widget "$widget1" >/dev/null 2>&1
+tmux set-option -p -t "$first" @widget "$widget1" \; set-option -p -t "$first" @since "$(date +%s)" >/dev/null 2>&1
 controls
 toolbar "$DELAY"
 
 spin_up
 
+# Build the screen anew.  Panes the user keeps (k) stay; without any, one pane
+# stays so that the window does.
 deal() {
-	tmux kill-pane -a -t "$WIN.{bottom-right}"
+	local stay= id=
+	stay=$(tmux list-panes -t "$WIN" -F '#{?@keep,1,0} #{pane_id}' 2>/dev/null | awk '$1 == 1 {print $2}')
+	[ -n "$stay" ] || stay=$(tmux list-panes -t "$WIN" -F '#{pane_id}' 2>/dev/null | tail -n 1)
+	for id in $(tmux list-panes -t "$WIN" -F '#{pane_id}' 2>/dev/null); do
+		echo "$stay" | grep -qxF "$id" || tmux kill-pane -t "$id" 2>/dev/null
+	done
 	# forget the panes that are gone
 	tmux list-panes -t "$WIN" -F '#{pane_id}' 2>/dev/null | while read -r id; do
 		grep "^$id " "$STATE/panes" | tail -n 1
@@ -230,7 +246,13 @@ while true; do
 	else
 		i=$((i+1))
 		if [ "$i" -ge "$DELAY" ]; then
-			deal
+			# by default one pane changes and the rest of the screen stays as the
+			# user arranged it; -r builds everything anew as upstream does
+			if [ "$CHANGE" = deal ]; then
+				deal
+			else
+				"$SHARE_DIR/ctl" "$STATE" swap
+			fi
 			i=0
 		fi
 	fi

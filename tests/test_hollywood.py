@@ -232,6 +232,55 @@ class OtherShims(unittest.TestCase):
         self.assertIn('exec bat "$@"', (SHIMS / "batcat").read_text())
 
 
+FAKE_TMUX = r'''#!/usr/bin/env python3
+# stand-in for tmux: records what it is asked and keeps a table of panes
+# (id widget keep active since width height) that the commands change
+import os, sys
+log, table = os.environ["FAKE_LOG"], os.environ["FAKE_PANES"]
+args = sys.argv[1:]
+open(log, "a").write(" ".join(args) + "\n")
+rows = [l.split() for l in open(table).read().splitlines() if l.strip()]
+save = lambda: open(table, "w").write("".join(" ".join(r) + "\n" for r in rows))
+target = lambda a: a[a.index("-t") + 1] if "-t" in a else ""
+cmds, cur = [], []
+for a in args:
+    if a == ";":
+        cmds.append(cur); cur = []
+    else:
+        cur.append(a)
+cmds.append(cur)
+for a in cmds:
+    if not a:
+        continue
+    if a[0] == "list-panes":
+        fmt = a[a.index("-F") + 1] if "-F" in a else "#{pane_id}"
+        for r in rows:
+            out = fmt
+            for key, val in (("#{?@keep,1,0}", r[2]), ("#{?@since,#{@since},0}", r[4]), ("#{pane_active}", r[3]),
+                             ("#{pane_id}", r[0]), ("#{@widget}", r[1]), ("#{pane_width}", r[5]), ("#{pane_height}", r[6])):
+                out = out.replace(key, val)
+            print(out)
+    elif a[0] == "split-window":
+        rows.append(["%9", "new", "0", "0", "999", "40", "10"]); save(); print("%9")
+    elif a[0] == "kill-pane":
+        rows = [r for r in rows if r[0] != target(a)]; save()
+    elif a[0] == "respawn-pane":
+        pass
+    elif a[0] == "show-options":
+        print("".join(r[2] for r in rows if r[0] == target(a)).replace("0", ""))
+    elif a[0] == "set-option" and "-p" in a:
+        for r in rows:
+            if r[0] == target(a):
+                if "@keep" in a:
+                    r[2] = "0" if "-u" in a else "1"
+                elif "@widget" in a:
+                    r[1] = a[-1]
+                elif "@since" in a:
+                    r[4] = "1000"
+        save()
+'''
+
+
 class Controls(unittest.TestCase):
     """share/hollywood/ctl against a stand-in for tmux that records what it is asked."""
     ctl = str(ROOT / "share/hollywood/ctl")
@@ -247,19 +296,19 @@ class Controls(unittest.TestCase):
         (self.state / "max").write_text("20\n")
         (self.state / "panes").write_text("%1 map\n%2 cmatrix\n%3 hexdump\n")
         (self.state / "widgets").write_text(str(ROOT / "lib/hollywood") + "\n")
+        # id widget keep active since width height
         self.panes = root / "panes"
-        self.panes.write_text("%1\n%2\n%3\n")
+        self.panes.write_text("%1 map 0 1 100 80 20\n%2 cmatrix 0 0 200 40 10\n%3 hexdump 0 0 300 40 10\n")
         self.log = root / "log"
         fake = root / "bin"
         fake.mkdir()
-        (fake / "tmux").write_text(
-            '#!/bin/sh\necho "$*" >> "%s"\n'
-            'case "$1" in\n'
-            '  list-panes) case "$*" in *pane_active*) sed "1s/^/1 /;2,\\$s/^/0 /" "%s" ;; *) cat "%s" ;; esac ;;\n'
-            '  split-window) echo "%%9" ;;\n'
-            'esac\n' % (self.log, self.panes, self.panes))
+        (fake / "tmux").write_text(FAKE_TMUX)
         (fake / "tmux").chmod(0o755)
-        self.env = dict(os.environ, PATH=str(fake) + os.pathsep + os.environ["PATH"])
+        self.env = dict(os.environ, PATH=str(fake) + os.pathsep + os.environ["PATH"],
+                        FAKE_LOG=str(self.log), FAKE_PANES=str(self.panes))
+
+    def on_screen(self):
+        return {r.split()[0]: r.split()[1] for r in self.panes.read_text().splitlines()}
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -312,26 +361,93 @@ class Controls(unittest.TestCase):
         self.run_ctl("pause")
         self.assertFalse((self.state / "paused").exists())
 
-    def test_more_and_less_change_the_pane_count_and_deal(self):
+    def test_more_adds_one_pane_and_leaves_the_others(self):
         self.run_ctl("more")
-        self.assertEqual((self.state / "splits").read_text().strip(), "5")
-        self.assertTrue((self.state / "deal").exists())
-        self.run_ctl("less")
-        self.run_ctl("less")
-        self.assertEqual((self.state / "splits").read_text().strip(), "3")
+        self.assertEqual(list(self.on_screen())[:3], ["%1", "%2", "%3"])
+        self.assertEqual(len(self.on_screen()), 4)
+        self.assertEqual((self.state / "splits").read_text().strip(), "4")
+        self.assertFalse((self.state / "deal").exists(), "more must not build the screen anew")
+        self.assertFalse([c for c in self.calls() if c.startswith("kill-pane")])
+        new = self.on_screen()["%9"]
+        self.assertNotIn(new, ("map", "cmatrix", "hexdump"), "a widget that is on screen already")
+        self.assertTrue((ROOT / "lib/hollywood" / new).exists())
 
-    def test_the_pane_count_stays_between_one_and_the_number_of_widgets(self):
-        (self.state / "splits").write_text("1\n")
-        self.run_ctl("less")
-        self.assertEqual((self.state / "splits").read_text().strip(), "1")
-        (self.state / "splits").write_text("20\n")
+    def test_the_largest_pane_is_the_one_that_is_split(self):
         self.run_ctl("more")
-        self.assertEqual((self.state / "splits").read_text().strip(), "20")
+        split = [c for c in self.calls() if c.startswith("split-window")][0]
+        self.assertIn("-t %1 ", split)
+        self.assertIn(" -h ", split)          # 80 x 20: wider than high, even in character cells
+        self.assertIn(" -d ", split)          # the selection stays where it is
 
-    def test_a_damaged_pane_count_is_not_calculated_with(self):
-        (self.state / "splits").write_text("$(touch /tmp/x)\n")
-        self.assertEqual(self.run_ctl("more").returncode, 0)
-        self.assertEqual((self.state / "splits").read_text().strip(), "$(touch /tmp/x)")
+    def test_more_never_opens_a_closed_widget(self):
+        every = sorted(w.name for w in WIDGETS)
+        (self.state / "banned").write_text("\n".join(w for w in every if w != "figlet") + "\n")
+        self.run_ctl("more")
+        self.assertEqual(self.on_screen()["%9"], "figlet")
+
+    def test_less_takes_the_newest_pane_that_is_neither_kept_nor_selected(self):
+        self.run_ctl("less")
+        self.assertEqual(list(self.on_screen()), ["%1", "%2"])
+        self.assertEqual(self.banned(), [], "less closes a pane, it does not ban its widget")
+        self.assertEqual((self.state / "splits").read_text().strip(), "2")
+        self.assertFalse((self.state / "deal").exists())
+
+    def test_less_spares_kept_panes(self):
+        self.run_ctl("keep", "%3")
+        self.run_ctl("less")
+        self.assertEqual(list(self.on_screen()), ["%1", "%3"])
+
+    def test_the_last_pane_survives_less(self):
+        self.panes.write_text("%1 map 0 1 100 80 20\n")
+        self.run_ctl("less")
+        self.assertEqual(list(self.on_screen()), ["%1"])
+
+    def test_no_pane_is_added_when_every_widget_is_on_screen(self):
+        (self.state / "max").write_text("3\n")
+        self.run_ctl("more")
+        self.assertEqual(len(self.on_screen()), 3)
+
+    def test_swap_changes_the_oldest_idle_pane_in_place(self):
+        self.run_ctl("swap")
+        respawn = [c for c in self.calls() if c.startswith("respawn-pane")]
+        self.assertEqual(len(respawn), 1)
+        # %1 is older but selected: the user is looking at it
+        self.assertIn("-k -t %2 ", respawn[0])
+        self.assertEqual(len(self.on_screen()), 3)
+        self.assertNotIn(self.on_screen()["%2"], ("map", "cmatrix", "hexdump"))
+        self.assertFalse([c for c in self.calls() if c.startswith(("kill-pane", "split-window"))])
+
+    def test_swap_takes_the_selected_pane_when_it_is_the_only_free_one(self):
+        self.run_ctl("keep", "%2")
+        self.run_ctl("keep", "%3")
+        self.run_ctl("swap")
+        self.assertIn("-k -t %1 ", [c for c in self.calls() if c.startswith("respawn-pane")][0])
+
+    def test_kept_panes_are_never_swapped_by_the_clock(self):
+        for pane in ("%1", "%2", "%3"):
+            self.run_ctl("keep", pane)
+        self.run_ctl("swap")
+        self.assertFalse([c for c in self.calls() if c.startswith("respawn-pane")])
+
+    def test_swap_of_a_named_pane_is_the_users_wish(self):
+        self.run_ctl("keep", "%3")
+        self.run_ctl("swap", "%3")
+        self.assertIn("-k -t %3 ", [c for c in self.calls() if c.startswith("respawn-pane")][0])
+        self.run_ctl("swap", "%99")
+        self.assertEqual(len([c for c in self.calls() if c.startswith("respawn-pane")]), 1)
+
+    def test_keep_toggles(self):
+        keep = lambda: [r.split()[2] for r in self.panes.read_text().splitlines()]
+        self.run_ctl("keep")
+        self.assertEqual(keep(), ["1", "0", "0"])
+        self.run_ctl("keep", "%1")
+        self.assertEqual(keep(), ["0", "0", "0"])
+        self.run_ctl("keep", "%99")
+        self.assertEqual(keep(), ["0", "0", "0"])
+
+    def test_closing_a_pane_updates_the_count_for_the_next_deal(self):
+        self.run_ctl("close", "%2")
+        self.assertEqual((self.state / "splits").read_text().strip(), "2")
 
     def test_quit_closes_the_window_of_the_show(self):
         self.run_ctl("quit")
@@ -356,7 +472,8 @@ class Controls(unittest.TestCase):
         self.assertEqual(self.banned(), ["cmatrix"])
         self.assertTrue([c for c in self.calls() if c.startswith("split-window") and c.endswith("/lib/hollywood/figlet'")])
         self.assertIn("%9 figlet", (self.state / "panes").read_text().splitlines())
-        self.assertIn("set-option -p -t %9 @widget figlet", self.calls())
+        self.assertEqual(self.on_screen()["%9"], "figlet")
+        self.assertEqual(len(self.on_screen()), 4)
 
     def test_open_takes_only_names_of_widgets(self):
         # the name ends up in a command line: nothing that is not a widget file may pass
@@ -364,11 +481,12 @@ class Controls(unittest.TestCase):
             self.run_ctl("open", name)
         self.assertFalse([c for c in self.calls() if c.startswith("split-window")])
 
-    def test_restore_lifts_every_ban_and_deals(self):
+    def test_restore_lifts_every_ban_and_leaves_the_screen_alone(self):
         (self.state / "banned").write_text("figlet\ncmatrix\n")
         self.run_ctl("restore")
         self.assertEqual(self.banned(), [])
-        self.assertTrue((self.state / "deal").exists())
+        self.assertFalse((self.state / "deal").exists())
+        self.assertEqual(len(self.on_screen()), 3)
 
     def test_restore_with_nothing_closed_does_not_deal(self):
         self.run_ctl("restore")
@@ -378,7 +496,9 @@ class Controls(unittest.TestCase):
         self.run_ctl("button", "pause")
         self.assertTrue((self.state / "paused").exists())
         self.run_ctl("button", "more")
-        self.assertEqual((self.state / "splits").read_text().strip(), "5")
+        self.assertEqual(len(self.on_screen()), 4)
+        self.run_ctl("button", "keep")
+        self.assertEqual(self.panes.read_text().splitlines()[0].split()[2], "1")
         self.run_ctl("button", "quit")
         self.assertIn("kill-window -t @1", self.calls())
 
@@ -407,7 +527,7 @@ class Controls(unittest.TestCase):
 
     def test_the_help_page_names_every_key(self):
         text = run([self.ctl, str(self.state), "helppage"], env=self.env, stdin="\n").stdout
-        for key in ("x ", "a ", "r ", "n ", "p ", "+ -", "q ", "double click", "right click"):
+        for key in ("s ", "k ", "x ", "a ", "r ", "n ", "p ", "+ -", "q ", "double click", "right click"):
             self.assertIn(key, text)
 
     def test_without_a_state_directory_nothing_happens(self):
@@ -449,19 +569,19 @@ class Interaction(unittest.TestCase):
     def test_keys_live_in_their_own_table_not_in_root(self):
         body = COMMENT.sub("", self.function("controls"))
         binds = re.findall(r"bind-key (.*)", body)
-        self.assertGreaterEqual(len(binds), 16)
+        self.assertGreaterEqual(len(binds), 18)
         self.assertTrue(all(b.startswith("-T $PKG ") for b in binds), binds)
 
     def test_every_control_is_bound(self):
         body = COMMENT.sub("", self.function("controls"))
         for key in ("MouseDown1Pane", "DoubleClick1Pane", "MouseDown3Pane", "MouseDrag1Border",
-                    "MouseDown1Status", "x", "z", "a", "r", "n", "p", "Space", "+", "-", "?", "q"):
+                    "MouseDown1Status", "s", "k", "x", "z", "a", "r", "n", "p", "Space", "+", "-", "?", "q"):
             self.assertRegex(body, r"bind-key -T \$PKG %s " % re.escape(key))
 
     def test_every_toolbar_button_has_a_command_and_a_key(self):
         bar = self.function("toolbar")
         names = set(re.findall(r"range=user\|(\w+)", bar))
-        self.assertEqual(names, {"close", "menu", "restore", "deal", "pause", "zoom", "less", "more", "help", "quit"})
+        self.assertEqual(names, {"swap", "keep", "close", "menu", "restore", "deal", "pause", "zoom", "less", "more", "help", "quit"})
         ctl = (ROOT / "share/hollywood/ctl").read_text()
         allowed = set(re.search(r"case \"\$arg\" in\s+([a-z|]+)\)", ctl).group(1).split("|"))
         self.assertEqual(names, allowed, "a button without a command, or a command without a button")
@@ -473,7 +593,7 @@ class Interaction(unittest.TestCase):
         # run-shell without -b waits for its command - and a popup or a menu started
         # from there waits for the server: the show froze on "?" (found in the first run)
         body = COMMENT.sub("", self.function("controls"))
-        self.assertGreaterEqual(body.count("run-shell -b "), 13)
+        self.assertGreaterEqual(body.count("run-shell -b "), 15)
         self.assertEqual(body.count("run-shell "), body.count("run-shell -b "))
         self.assertRegex(body, r'bind-key -T \$PKG \? display-popup [^\n]*helppage')
 
@@ -481,8 +601,29 @@ class Interaction(unittest.TestCase):
         loop = self.src[self.src.index("i=0\nwhile true"):]
         self.assertRegex(loop, r'elif \[ -e "\$STATE/paused" \] \|\| zoomed; then\s+:\s+else\s+i=\$\(\(i\+1\)\)')
 
+    def test_by_itself_the_show_changes_one_pane_and_not_the_screen(self):
+        # upstream rebuilt everything every ten seconds: selection, sizes and whatever
+        # the user had arranged were gone each time
+        loop = self.src[self.src.index("i=0\nwhile true"):]
+        self.assertRegex(loop, r'if \[ "\$CHANGE" = deal \]; then\s+deal\s+else\s+"\$SHARE_DIR/ctl" "\$STATE" swap\s+fi')
+        self.assertRegex(self.src, r"(?m)^CHANGE=swap$")
+        self.assertRegex(self.src, r"-r\|--redeal\)\s+CHANGE=deal")
+        self.assertRegex(self.src, r"-d \$DELAY\$\(\[ \$CHANGE = deal \] && echo ' -r'\)")
+
+    def test_a_deal_spares_the_panes_the_user_keeps(self):
+        deal = self.function("deal")
+        self.assertNotIn("kill-pane -a", deal)
+        self.assertIn("#{?@keep,1,0} #{pane_id}", deal)
+        self.assertRegex(deal, r'echo "\$stay" \| grep -qxF "\$id" \|\| tmux kill-pane -t "\$id"')
+        self.assertIn("tail -n 1", deal)        # without a kept pane one stays, or the window goes
+
+    def test_a_closed_terminal_cleans_up_too(self):
+        self.assertIn("trap cleanup INT TERM HUP EXIT", self.src)
+
     def test_every_pane_carries_the_name_of_its_widget(self):
         self.assertIn('set-option -p -t "$id" @widget "$3"', self.function("start_widget"))
+        self.assertIn('@since "$(date +%s)"', self.function("start_widget"))
+        self.assertIn("#{?@keep, [kept],}", self.function("controls"))
         self.assertIn('@widget "$widget1"', self.src)
         self.assertIn("#{@widget}", self.function("controls"))
 

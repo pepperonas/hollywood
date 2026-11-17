@@ -35,7 +35,7 @@ done
 tmux set-option -w -t $S pane-border-status top
 b="#[fg=colour252,bg=colour238]"
 e="#[default]#[norange] "
-tmux set-option -t $S status-format[0] "#[fg=colour114,bold] hollywood #[default] #[range=user|close]$b x close $e#[range=user|menu]$b a open $e#[range=user|deal]$b n deal $e#[range=user|pause]$b p pause $e#[range=user|zoom]$b z zoom $e#[range=user|less]$b - ${e}9 panes #[range=user|more]$b + $e#[range=user|help]$b ? $e#[range=user|quit]$b q quit $e#[align=right]#[fg=colour244]next deal in 7 s "
+tmux set-option -t $S status-format[0] "#[fg=colour114,bold] hollywood #[default] #[range=user|swap]$b s swap $e#[range=user|keep]$b k keep $e#[range=user|close]$b x close $e#[range=user|menu]$b a open $e#[range=user|zoom]$b z zoom $e#[range=user|pause]$b p pause $e#[range=user|deal]$b n deal $e#[range=user|less]$b - ${e}9 panes #[range=user|more]$b + $e#[range=user|help]$b ? $e#[range=user|quit]$b q quit $e#[align=right]#[fg=colour244]next swap in 7 s "
 sleep 14
 shot stage
 

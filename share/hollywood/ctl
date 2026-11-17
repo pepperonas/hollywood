@@ -5,10 +5,13 @@
 #                             away for this show
 #   ctl STATE zoom [PANE]     show one pane alone, and all of them again
 #   ctl STATE open WIDGET     start that widget in a new pane now (and allow it again)
+#   ctl STATE swap [PANE]     put another widget into a pane; without PANE into the one
+#                             that has shown its widget longest (never a kept one)
+#   ctl STATE keep [PANE]     keep a pane as it is: no swap, and it survives a deal
 #   ctl STATE restore         allow every closed widget again
-#   ctl STATE deal            deal the panes again now
-#   ctl STATE pause           stop or resume the automatic dealing
-#   ctl STATE more | less     one pane more or fewer, then deal
+#   ctl STATE deal            build the whole screen anew (kept panes stay)
+#   ctl STATE pause           stop or resume the automatic swapping
+#   ctl STATE more | less     one pane more or fewer; the others stay as they are
 #   ctl STATE menu            menu of all widgets: open one
 #   ctl STATE panemenu PANE   context menu of a pane
 #   ctl STATE button NAME     a click on the toolbar button NAME
@@ -30,6 +33,33 @@ say() { tmux display-message -d 2500 "hollywood: $*" 2>/dev/null; }
 in_show() { tmux list-panes -t "$win" -F '#{pane_id}' 2>/dev/null | grep -qxF "$1"; }
 active() { tmux list-panes -t "$win" -F '#{pane_active} #{pane_id}' 2>/dev/null | awk '$1 == 1 {print $2; exit}'; }
 widget_of() { awk -v p="$1" '$1 == p {w = $2} END {print w}' "$state/panes" 2>/dev/null; }
+count() { tmux list-panes -t "$win" -F x 2>/dev/null | wc -l | tr -d ' '; }
+# a widget that is neither closed nor on screen
+pick() {
+	ls "$(cat "$state/widgets" 2>/dev/null)" 2>/dev/null | grep -vxF -f "$state/banned" > "$state/pick.$$"
+	tmux list-panes -t "$win" -F '#{@widget}' 2>/dev/null > "$state/shown.$$"
+	grep -vxF -f "$state/shown.$$" "$state/pick.$$" | sort -R | head -n 1
+	rm -f "$state/pick.$$" "$state/shown.$$"
+}
+# remember what runs in a pane, and since when
+mark() {
+	echo "$1 $2" >> "$state/panes"
+	tmux set-option -p -t "$1" @widget "$2" \; set-option -p -t "$1" @since "$(date +%s)" 2>/dev/null
+}
+# panes that may change, as "active since id": the idle and oldest first
+free() { tmux list-panes -t "$win" -F '#{?@keep,1,0} #{pane_active} #{?@since,#{@since},0} #{pane_id}' 2>/dev/null | awk '$1 == 0 {print $2, $3, $4}'; }
+# a new pane for a widget: the largest pane is halved, across its longer side
+add() {
+	big=$(tmux list-panes -t "$win" -F '#{pane_width} #{pane_height} #{pane_id}' 2>/dev/null | awk '{print $1 * $2, $0}' | sort -rn | head -n 1)
+	[ -n "$big" ] || return 1
+	set -- $big
+	dir=-v
+	[ "$2" -gt $(($3 * 5 / 2)) ] && dir=-h
+	id=$(tmux split-window $dir -d -P -F '#{pane_id}' -t "$4" "nice -n 19 '$(cat "$state/widgets")/$w'" 2>/dev/null)
+	[ -n "$id" ] || return 1
+	mark "$id" "$w"
+	count > "$state/splits"
+}
 # a widget name is a file name in the widget directory, nothing else
 known() {
 	case "$1" in ''|*/*|.*) return 1 ;; esac
@@ -51,6 +81,31 @@ case "$cmd" in
 			say "$widget closed for this show - r brings everything back"
 		fi
 		tmux kill-pane -t "$pane" 2>/dev/null
+		count > "$state/splits"
+	;;
+	swap)
+		if [ -n "$arg" ]; then
+			pane=$arg
+		else
+			pane=$(free | sort -k1,1n -k2,2n | head -n 1 | awk '{print $3}')
+		fi
+		in_show "$pane" || exit 0
+		w=$(pick)
+		[ -n "$w" ] || exit 0
+		# the pane stays where and as large as it is; only its program changes
+		tmux respawn-pane -k -t "$pane" "nice -n 19 '$(cat "$state/widgets")/$w'" 2>/dev/null || exit 0
+		mark "$pane" "$w"
+	;;
+	keep)
+		pane=${arg:-$(active)}
+		in_show "$pane" || exit 0
+		if [ "$(tmux show-options -p -v -t "$pane" @keep 2>/dev/null)" = "1" ]; then
+			tmux set-option -p -u -t "$pane" @keep 2>/dev/null
+			say "$(widget_of "$pane") takes part in the swapping again"
+		else
+			tmux set-option -p -t "$pane" @keep 1 2>/dev/null
+			say "$(widget_of "$pane") stays - k lets it go"
+		fi
 	;;
 	zoom)
 		pane=${arg:-$(active)}
@@ -62,20 +117,12 @@ case "$cmd" in
 		# allowed again, and on screen now
 		grep -vxF "$arg" "$state/banned" > "$state/banned.new" 2>/dev/null
 		mv "$state/banned.new" "$state/banned"
-		pane=$(active)
-		[ -n "$pane" ] || exit 0
-		id=$(tmux split-window -P -F '#{pane_id}' -t "$pane" "nice -n 19 '$(cat "$state/widgets")/$arg'" 2>/dev/null)
-		if [ -n "$id" ]; then
-			echo "$id $arg" >> "$state/panes"
-			tmux set-option -p -t "$id" @widget "$arg" 2>/dev/null
-		else
-			say "no room for another pane"
-		fi
+		w=$arg
+		add || say "no room for another pane"
 	;;
 	restore)
 		if [ -s "$state/banned" ]; then
 			: > "$state/banned"
-			: > "$state/deal"
 			say "every widget is back"
 		else
 			say "nothing was closed"
@@ -87,22 +134,32 @@ case "$cmd" in
 	pause)
 		if [ -e "$state/paused" ]; then
 			rm -f "$state/paused"
-			say "dealing again"
+			say "swapping again"
 		else
 			: > "$state/paused"
-			say "paused - p resumes, n deals once"
+			say "paused - p resumes, s swaps one pane"
 		fi
 	;;
-	more|less)
-		n=$(cat "$state/splits" 2>/dev/null)
+	more)
 		max=$(cat "$state/max" 2>/dev/null)
-		case "$n" in ''|*[!0-9]*) exit 0 ;; esac
-		[ "$cmd" = more ] && n=$((n + 1)) || n=$((n - 1))
-		[ "$n" -lt 1 ] && n=1
-		[ -n "$max" ] && [ "$n" -gt "$max" ] && n=$max
-		echo "$n" > "$state/splits"
-		: > "$state/deal"
-		say "$n panes"
+		if [ -n "$max" ] && [ "$(count)" -ge "$max" ]; then
+			say "every widget is on screen"
+			exit 0
+		fi
+		w=$(pick)
+		[ -n "$w" ] || { say "no widget left - r brings closed ones back"; exit 0; }
+		add || say "no room for another pane"
+	;;
+	less)
+		if [ "$(count)" -le 1 ]; then
+			say "the last pane stays - q quits"
+			exit 0
+		fi
+		# the newest pane that is neither kept nor selected goes; nothing is banned
+		pane=$(free | sort -k1,1n -k2,2nr | head -n 1 | awk '{print $3}')
+		[ -n "$pane" ] || { say "every pane is kept - k lets one go"; exit 0; }
+		tmux kill-pane -t "$pane" 2>/dev/null
+		count > "$state/splits"
 	;;
 	menu)
 		# every widget, with a mark for what is on screen (*) and what was closed (x)
@@ -120,11 +177,13 @@ case "$cmd" in
 		in_show "$arg" || exit 0
 		run="run-shell \"'$self' '$state'"
 		tmux display-menu -T " $(widget_of "$arg") " -t "$arg" -x M -y M \
-			"Close for this show" x "$run close '$arg'\"" \
+			"Another widget here" s "$run swap '$arg'\"" \
+			"Keep / let go" k "$run keep '$arg'\"" \
 			"Zoom / unzoom" z "$run zoom '$arg'\"" \
+			"Close for this show" x "$run close '$arg'\"" \
 			"" \
 			"Open a widget ..." a "$run menu\"" \
-			"Deal again" n "$run deal\"" \
+			"Build the screen anew" n "$run deal\"" \
 			"Pause / resume" p "$run pause\"" \
 			"Bring closed widgets back" r "$run restore\"" \
 			"" \
@@ -133,7 +192,7 @@ case "$cmd" in
 	button)
 		# the names of the toolbar's click ranges
 		case "$arg" in
-			close|zoom|restore|deal|pause|more|less|menu|help|quit) exec "$self" "$state" "$arg" ;;
+			close|swap|keep|zoom|restore|deal|pause|more|less|menu|help|quit) exec "$self" "$state" "$arg" ;;
 		esac
 	;;
 	helppage)
@@ -145,14 +204,17 @@ case "$cmd" in
   right click            menu for that pane
   drag a border          resize
 
+  s     another widget in this pane, now
+  k     keep this pane as it is, and let it go again
   x     close the pane; its widget stays away
   a     open a widget of your choice
-  r     bring closed widgets back
-  n     deal the panes again now
-  p     pause and resume the dealing
+  r     allow closed widgets again
   + -   one pane more or fewer
+  p     pause and resume the swapping
+  n     build the whole screen anew
   q     quit
 
+  By itself the show swaps one pane at a time.
   The bar at the bottom can be clicked too.
 
   Press Enter to close.
@@ -160,8 +222,8 @@ TEXT
 		read -r _
 	;;
 	help)
-		tmux display-popup -w 54 -h 21 -T " hollywood " -E "'$self' '$state' helppage" 2>/dev/null \
-			|| tmux display-message -d 6000 "x close  a open  r restore  n deal  p pause  z zoom  + - panes  q quit" 2>/dev/null
+		tmux display-popup -w 54 -h 25 -T " hollywood " -E "'$self' '$state' helppage" 2>/dev/null \
+			|| tmux display-message -d 6000 "s swap  k keep  x close  a open  r restore  n deal  p pause  z zoom  + - panes  q quit" 2>/dev/null
 	;;
 	quit)
 		tmux kill-window -t "$win" 2>/dev/null
