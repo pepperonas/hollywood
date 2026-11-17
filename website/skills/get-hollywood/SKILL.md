@@ -30,7 +30,7 @@ page itself, browsers with WebMCP expose the same data as the tools `get_latest_
 
 1. With Homebrew: `brew install pepperonas/tap/hollywood` brings hollywood and every program its widgets use. Without Homebrew, `curl -fsSL https://github.com/pepperonas/hollywood/releases/latest/download/install.sh | sh` puts it into `~/.local` and names what is missing.
 2. Type `hollywood` in a terminal. On a laptop screen `hollywood -s 8` is a good start: eight panes instead of one per widget.
-3. Press `q`, or Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt. The status line at the bottom names the other keys.
+3. Press `q`, or Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt. The toolbar at the bottom has a button for everything else.
 
 ## Limits
 

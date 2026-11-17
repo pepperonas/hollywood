@@ -1,11 +1,18 @@
 #!/bin/sh
-# hollywood control: what the keys and mouse buttons of a running show do.
+# hollywood control: what the keys, the mouse and the toolbar of a running show do.
 #
-#   ctl STATE close PANE_ID   close that pane; its widget stays away for this session
+#   ctl STATE close [PANE]    close a pane (default: the active one); its widget stays
+#                             away for this show
+#   ctl STATE zoom [PANE]     show one pane alone, and all of them again
+#   ctl STATE open WIDGET     start that widget in a new pane now (and allow it again)
+#   ctl STATE restore         allow every closed widget again
 #   ctl STATE deal            deal the panes again now
 #   ctl STATE pause           stop or resume the automatic dealing
 #   ctl STATE more | less     one pane more or fewer, then deal
-#   ctl STATE help            show the keys
+#   ctl STATE menu            menu of all widgets: open one
+#   ctl STATE panemenu PANE   context menu of a pane
+#   ctl STATE button NAME     a click on the toolbar button NAME
+#   ctl STATE help            the keys, in a popup (helppage prints them)
 #   ctl STATE quit            end the show
 #
 # STATE is the directory bin/hollywood keeps for the running show.  This script
@@ -13,28 +20,66 @@
 
 state=$1
 cmd=$2
-pane=$3
+arg=$3
 [ -d "$state" ] || exit 0
 win=$(cat "$state/window" 2>/dev/null)
 [ -n "$win" ] || exit 0
+self=$0
 
 say() { tmux display-message -d 2500 "hollywood: $*" 2>/dev/null; }
-keys="click: select   x / right click: close   n: deal now   p: pause   + -: panes   q: quit"
+in_show() { tmux list-panes -t "$win" -F '#{pane_id}' 2>/dev/null | grep -qxF "$1"; }
+active() { tmux list-panes -t "$win" -F '#{pane_active} #{pane_id}' 2>/dev/null | awk '$1 == 1 {print $2; exit}'; }
+widget_of() { awk -v p="$1" '$1 == p {w = $2} END {print w}' "$state/panes" 2>/dev/null; }
+# a widget name is a file name in the widget directory, nothing else
+known() {
+	case "$1" in ''|*/*|.*) return 1 ;; esac
+	[ -x "$(cat "$state/widgets" 2>/dev/null)/$1" ]
+}
 
 case "$cmd" in
 	close)
+		pane=${arg:-$(active)}
 		# only panes of the show, never the shell the launcher runs in
-		tmux list-panes -t "$win" -F '#{pane_id}' 2>/dev/null | grep -qxF "$pane" || exit 0
+		in_show "$pane" || exit 0
 		if [ "$(tmux list-panes -t "$win" 2>/dev/null | wc -l)" -le 1 ]; then
 			say "the last pane stays - q quits"
 			exit 0
 		fi
-		widget=$(awk -v p="$pane" '$1 == p {w = $2} END {print w}' "$state/panes" 2>/dev/null)
+		widget=$(widget_of "$pane")
 		if [ -n "$widget" ]; then
 			grep -qxF "$widget" "$state/banned" 2>/dev/null || echo "$widget" >> "$state/banned"
-			say "$widget closed for this session"
+			say "$widget closed for this show - r brings everything back"
 		fi
 		tmux kill-pane -t "$pane" 2>/dev/null
+	;;
+	zoom)
+		pane=${arg:-$(active)}
+		in_show "$pane" || exit 0
+		tmux resize-pane -Z -t "$pane" 2>/dev/null
+	;;
+	open)
+		known "$arg" || exit 0
+		# allowed again, and on screen now
+		grep -vxF "$arg" "$state/banned" > "$state/banned.new" 2>/dev/null
+		mv "$state/banned.new" "$state/banned"
+		pane=$(active)
+		[ -n "$pane" ] || exit 0
+		id=$(tmux split-window -P -F '#{pane_id}' -t "$pane" "nice -n 19 '$(cat "$state/widgets")/$arg'" 2>/dev/null)
+		if [ -n "$id" ]; then
+			echo "$id $arg" >> "$state/panes"
+			tmux set-option -p -t "$id" @widget "$arg" 2>/dev/null
+		else
+			say "no room for another pane"
+		fi
+	;;
+	restore)
+		if [ -s "$state/banned" ]; then
+			: > "$state/banned"
+			: > "$state/deal"
+			say "every widget is back"
+		else
+			say "nothing was closed"
+		fi
 	;;
 	deal)
 		: > "$state/deal"
@@ -59,8 +104,64 @@ case "$cmd" in
 		: > "$state/deal"
 		say "$n panes"
 	;;
+	menu)
+		# every widget, with a mark for what is on screen (*) and what was closed (x)
+		set -- display-menu -T " open a widget " -x C -y C
+		for w in $(ls "$(cat "$state/widgets" 2>/dev/null)" 2>/dev/null); do
+			known "$w" || continue
+			mark=" "
+			grep -qxF "$w" "$state/banned" 2>/dev/null && mark="x"
+			tmux list-panes -t "$win" -F '#{@widget}' 2>/dev/null | grep -qxF "$w" && mark="*"
+			set -- "$@" "$mark $w" "" "run-shell \"'$self' '$state' open '$w'\""
+		done
+		tmux "$@" 2>/dev/null
+	;;
+	panemenu)
+		in_show "$arg" || exit 0
+		run="run-shell \"'$self' '$state'"
+		tmux display-menu -T " $(widget_of "$arg") " -t "$arg" -x M -y M \
+			"Close for this show" x "$run close '$arg'\"" \
+			"Zoom / unzoom" z "$run zoom '$arg'\"" \
+			"" \
+			"Open a widget ..." a "$run menu\"" \
+			"Deal again" n "$run deal\"" \
+			"Pause / resume" p "$run pause\"" \
+			"Bring closed widgets back" r "$run restore\"" \
+			"" \
+			"Quit" q "$run quit\"" 2>/dev/null
+	;;
+	button)
+		# the names of the toolbar's click ranges
+		case "$arg" in
+			close|zoom|restore|deal|pause|more|less|menu|help|quit) exec "$self" "$state" "$arg" ;;
+		esac
+	;;
+	helppage)
+		# what the help popup shows; it stays until a key is pressed
+		cat <<'TEXT'
+
+  click on a pane        select it
+  double click, z        zoom the pane, and back
+  right click            menu for that pane
+  drag a border          resize
+
+  x     close the pane; its widget stays away
+  a     open a widget of your choice
+  r     bring closed widgets back
+  n     deal the panes again now
+  p     pause and resume the dealing
+  + -   one pane more or fewer
+  q     quit
+
+  The bar at the bottom can be clicked too.
+
+  Press Enter to close.
+TEXT
+		read -r _
+	;;
 	help)
-		tmux display-message -d 6000 "$keys" 2>/dev/null
+		tmux display-popup -w 54 -h 21 -T " hollywood " -E "'$self' '$state' helppage" 2>/dev/null \
+			|| tmux display-message -d 6000 "x close  a open  r restore  n deal  p pause  z zoom  + - panes  q quit" 2>/dev/null
 	;;
 	quit)
 		tmux kill-window -t "$win" 2>/dev/null

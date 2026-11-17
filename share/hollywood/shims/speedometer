@@ -44,7 +44,7 @@ while sleep "$interval"; do
 	BEGIN {
 		if (rx < 0) rx = 0
 		if (tx < 0) tx = 0
-		w = cols - 24
+		w = cols - 26
 		if (w < 4) w = 4
 		printf "\033[1;32mRX %s %s\033[0m %s\n", ifc, human(rx / dt), bar(rx / dt, w)
 		printf "\033[1;35mTX %s %s\033[0m %s\n", ifc, human(tx / dt), bar(tx / dt, w)

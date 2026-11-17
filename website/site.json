@@ -9,7 +9,7 @@
  "license": "Apache-2.0",
  "tls": "wildcard",
  "year": 2026,
- "asset_version": 4,
+ "asset_version": 5,
  "theme_source": "the terminal palette of the screenshots (tools/termshot.py): dark slate background, the green of the falling characters as primary, amber as the warm accent",
  "theme": {
   "bg": "#0b0d12",
@@ -103,7 +103,8 @@
    "Runs on macOS: Linux-only paths and options are replaced in one compatibility file",
    "Stand-ins for ccze, apg, speedometer and atop, which Homebrew does not ship",
    "Options for the number of panes and the delay between deals",
-   "Steerable while it runs: close a pane for good, deal again, pause, change the number of panes, quit",
+   "Clickable toolbar and keys while it runs: close a pane for good, open a chosen widget, zoom, deal again, pause, change the number of panes",
+   "Every pane is named; right click opens a menu for it, borders can be dragged",
    "Ctrl-C in any pane ends the show and leaves no process behind",
    "Installs with Homebrew or a verifying installer script; nothing to build",
    "No network requests, no configuration, no telemetry"
@@ -239,11 +240,11 @@
      "fr": "Vous dirigez le spectacle"
     },
     "p": {
-     "en": "Click a pane to select it, press <code>x</code> to close it — that widget stays away for the rest of the show. <code>n</code> deals again, <code>p</code> pauses, <code>+</code> and <code>-</code> change the number of panes, <code>q</code> quits. The original can only be watched.",
-     "de": "Ein Klick wählt ein Fenster, <code>x</code> schließt es — dieses Widget bleibt für den Rest der Vorstellung weg. <code>n</code> verteilt neu, <code>p</code> hält an, <code>+</code> und <code>-</code> ändern die Zahl der Fenster, <code>q</code> beendet. Dem Original kann man nur zusehen.",
-     "es": "Haz clic en un panel para seleccionarlo y pulsa <code>x</code> para cerrarlo: ese widget no vuelve en lo que queda del espectáculo. <code>n</code> reparte de nuevo, <code>p</code> pausa, <code>+</code> y <code>-</code> cambian el número de paneles y <code>q</code> sale. El original solo se puede mirar.",
-     "it": "Clicca un riquadro per selezionarlo e premi <code>x</code> per chiuderlo: quel widget non torna per il resto dello spettacolo. <code>n</code> ridistribuisce, <code>p</code> mette in pausa, <code>+</code> e <code>-</code> cambiano il numero di riquadri, <code>q</code> esce. L'originale si può solo guardare.",
-     "fr": "Cliquez sur un panneau pour le sélectionner, appuyez sur <code>x</code> pour le fermer : ce widget ne revient plus jusqu'à la fin du spectacle. <code>n</code> redistribue, <code>p</code> met en pause, <code>+</code> et <code>-</code> changent le nombre de panneaux, <code>q</code> quitte. L'original ne peut qu'être regardé."
+     "en": "A toolbar at the bottom holds every control as a button: close a pane for good, open the widget you want, deal again, pause, zoom. Each pane carries its name, a right click opens its menu, a double click zooms it — and every button has a key. The original can only be watched.",
+     "de": "Eine Werkzeugleiste am unteren Rand hält jede Funktion als Knopf bereit: ein Fenster dauerhaft schließen, das gewünschte Widget öffnen, neu verteilen, anhalten, vergrößern. Jedes Fenster trägt seinen Namen, ein Rechtsklick öffnet sein Menü, ein Doppelklick vergrößert es — und jeder Knopf hat eine Taste. Dem Original kann man nur zusehen.",
+     "es": "Una barra de herramientas en la parte inferior ofrece cada función como un botón: cerrar un panel definitivamente, abrir el widget que quieras, repartir de nuevo, pausar, ampliar. Cada panel lleva su nombre, el clic derecho abre su menú y el doble clic lo amplía, y cada botón tiene su tecla. El original solo se puede mirar.",
+     "it": "Una barra degli strumenti in basso offre ogni funzione come pulsante: chiudere un riquadro definitivamente, aprire il widget che vuoi, ridistribuire, mettere in pausa, ingrandire. Ogni riquadro porta il suo nome, il clic destro apre il suo menu, il doppio clic lo ingrandisce, e ogni pulsante ha un tasto. L'originale si può solo guardare.",
+     "fr": "Une barre d'outils en bas propose chaque fonction sous forme de bouton : fermer un panneau pour de bon, ouvrir le widget de votre choix, redistribuer, mettre en pause, agrandir. Chaque panneau porte son nom, un clic droit ouvre son menu, un double clic l'agrandit, et chaque bouton a sa touche. L'original ne peut qu'être regardé."
     }
    },
    {
@@ -288,11 +289,11 @@
      "fr": "Le spectacle complet"
     },
     "p": {
-     "en": "Nine panes at once, arranged for the picture.",
-     "de": "Neun Fenster auf einmal, fürs Bild angeordnet.",
-     "es": "Nueve paneles a la vez, colocados para la imagen.",
-     "it": "Nove riquadri insieme, disposti per l'immagine.",
-     "fr": "Neuf panneaux à la fois, disposés pour l'image."
+     "en": "Nine named panes and the toolbar, arranged for the picture.",
+     "de": "Neun benannte Fenster und die Werkzeugleiste, fürs Bild angeordnet.",
+     "es": "Nueve paneles con nombre y la barra de herramientas, colocados para la imagen.",
+     "it": "Nove riquadri con nome e la barra degli strumenti, disposti per l'immagine.",
+     "fr": "Neuf panneaux nommés et la barre d'outils, disposés pour l'image."
     }
    },
    {
@@ -423,11 +424,11 @@
      "fr": "Quitter"
     },
     "p": {
-     "en": "Press <code>q</code>, or Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt. The status line at the bottom names the other keys.",
-     "de": "<code>q</code> drücken oder Strg-C in einem beliebigen Fenster. Das Fenster schließt sich, die von hollywood gestartete tmux-Sitzung endet, und du bist zurück an der Eingabezeile. Die Statuszeile unten nennt die übrigen Tasten.",
-     "es": "Pulsa <code>q</code>, o Ctrl-C en cualquier panel. La ventana se cierra, la sesión de tmux que inició hollywood termina y vuelves a tu línea de comandos. La línea de estado inferior indica las demás teclas.",
-     "it": "Premi <code>q</code>, oppure Ctrl-C in un riquadro qualsiasi. La finestra si chiude, la sessione tmux avviata da hollywood termina e torni al prompt. La riga di stato in basso indica gli altri tasti.",
-     "fr": "Appuyez sur <code>q</code>, ou sur Ctrl-C dans n'importe quel panneau. La fenêtre se ferme, la session tmux lancée par hollywood se termine et vous retrouvez votre invite. La ligne d'état en bas indique les autres touches."
+     "en": "Press <code>q</code>, or Ctrl-C in any pane. The window closes, the tmux session that hollywood started ends, and you are back at your prompt. The toolbar at the bottom has a button for everything else.",
+     "de": "<code>q</code> drücken oder Strg-C in einem beliebigen Fenster. Das Fenster schließt sich, die von hollywood gestartete tmux-Sitzung endet, und du bist zurück an der Eingabezeile. Die Werkzeugleiste unten hat für alles Weitere einen Knopf.",
+     "es": "Pulsa <code>q</code>, o Ctrl-C en cualquier panel. La ventana se cierra, la sesión de tmux que inició hollywood termina y vuelves a tu línea de comandos. La barra inferior tiene un botón para todo lo demás.",
+     "it": "Premi <code>q</code>, oppure Ctrl-C in un riquadro qualsiasi. La finestra si chiude, la sessione tmux avviata da hollywood termina e torni al prompt. La barra in basso ha un pulsante per tutto il resto.",
+     "fr": "Appuyez sur <code>q</code>, ou sur Ctrl-C dans n'importe quel panneau. La fenêtre se ferme, la session tmux lancée par hollywood se termine et vous retrouvez votre invite. La barre du bas a un bouton pour tout le reste."
     }
    }
   ],

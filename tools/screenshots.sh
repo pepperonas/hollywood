@@ -28,6 +28,14 @@ tmux split-window -h -l 88 -t $S.3 "$W/figlet"
 tmux split-window -h -l 44 -t $S.4 "$W/sshart"
 tmux split-window -h -l 70 -t $S.6 "$W/speedometer"
 tmux split-window -h -l 34 -t $S.7 "$W/pv"
+# what the launcher adds to a real show: the widget's name on every pane and the toolbar
+for line in $(tmux list-panes -t $S -F '#{pane_id}=#{pane_start_command}' | sed 's/"//g'); do
+	tmux set-option -p -t "${line%%=*}" @widget "${line##*/}"
+done
+tmux set-option -w -t $S pane-border-status top
+b="#[fg=colour252,bg=colour238]"
+e="#[default]#[norange] "
+tmux set-option -t $S status-format[0] "#[fg=colour114,bold] hollywood #[default] #[range=user|close]$b x close $e#[range=user|menu]$b a open $e#[range=user|deal]$b n deal $e#[range=user|pause]$b p pause $e#[range=user|zoom]$b z zoom $e#[range=user|less]$b - ${e}9 panes #[range=user|more]$b + $e#[range=user|help]$b ? $e#[range=user|quit]$b q quit $e#[align=right]#[fg=colour244]next deal in 7 s "
 sleep 14
 shot stage
 

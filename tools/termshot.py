@@ -133,8 +133,8 @@ def main():
     ap.add_argument("--scale", type=float, default=2)
     a = ap.parse_args()
 
-    fmt = "#{pane_index} #{pane_left} #{pane_top} #{pane_width} #{pane_height} #{pane_id}"
-    panes = [p.split() for p in tmux("list-panes", "-t", a.session, "-F", fmt).splitlines()]
+    fmt = "#{pane_index} #{pane_left} #{pane_top} #{pane_width} #{pane_height} #{pane_id} #{pane_active} #{@widget}"
+    panes = [(p.split() + [""])[:8] for p in tmux("list-panes", "-t", a.session, "-F", fmt).splitlines()]
     if a.pane is not None:
         panes = [p for p in panes if int(p[0]) == a.pane]
         panes[0][1] = panes[0][2] = "0"
@@ -142,13 +142,40 @@ def main():
     rows = max(int(p[2]) + int(p[4]) for p in panes)
 
     blocks = []
-    for _, left, top, width, height, pid in panes:
+    for _, left, top, width, height, pid, active, title in panes:
+        if title and a.pane is None and int(top) > 0:
+            # the name tmux writes on the pane's top border (pane-border-status)
+            blocks.append('<pre class="title%s" style="left:%.1fpx;top:%dpx;width:%.1fpx;height:%dpx"> %s </pre>' % (
+                " on" if active == "1" else "", int(left) * CELL_W, (int(top) - 1) * CELL_H,
+                int(width) * CELL_W, CELL_H, html.escape(title)))
         text = tmux("capture-pane", "-e", "-p", "-t", pid)
         st = dict(fg=None, bg=None, bold=False, dim=False, rev=False)
         lines = [line_html(l, st) for l in text.split("\n")[:int(height)]]
         blocks.append('<pre style="left:%.1fpx;top:%dpx;width:%.1fpx;height:%dpx">%s</pre>' % (
             int(left) * CELL_W, int(top) * CELL_H, int(width) * CELL_W, int(height) * CELL_H,
             "\n".join(lines)))
+
+    # the session's status line, if it defines one of its own (hollywood's toolbar)
+    bar = ""
+    if a.pane is None:
+        raw = tmux("display-message", "-p", "-t", a.session, "#{status-format[0]}").strip()
+        if "range=user" in raw:
+            left_part, _, right_part = raw.partition("#[align=right]")
+
+            def segments(text):
+                out, button = [], False
+                for style, chunk in re.findall(r"(?:#\[([^\]]*)\])?([^#]*)", text):
+                    if "bg=" in style:
+                        button = True
+                    elif "default" in style or "norange" in style:
+                        button = False
+                    if chunk:
+                        out.append('<b class="%s">%s</b>' % ("btn" if button else "txt", html.escape(chunk)))
+                return "".join(out)
+            bar = '<pre class="bar" style="left:0;top:%dpx;width:%.1fpx;height:%dpx">%s<u>%s</u></pre>' % (
+                rows * CELL_H, cols * CELL_W, CELL_H, segments(left_part), segments(right_part))
+            rows += 1
+    blocks.append(bar)
 
     pad = 14
     w, h = int(cols * CELL_W + 2 * pad + 1), rows * CELL_H + 2 * pad
@@ -160,6 +187,12 @@ pre{position:absolute;margin:0;overflow:hidden;background:%s;color:%s;
 pre i{display:inline-block;width:%.1fpx;height:%dpx;overflow:hidden;font-style:normal;
   vertical-align:top;text-align:center}
 pre span{display:inline-block;height:%dpx;vertical-align:top;letter-spacing:%.3fpx}
+pre.title{background:#2c2e3f;color:#8a8fa8}
+pre.title.on{color:#7be39b;font-weight:700}
+pre.bar{background:#22242f;color:#8a8fa8}
+pre.bar b{font-weight:400}
+pre.bar b.btn{background:#3a3d52;color:#d7dae8}
+pre.bar u{position:absolute;right:0;text-decoration:none}
 </style><div class="grid">%s</div>""" % (
         w, h, BG, pad, pad, cols * CELL_W, rows * CELL_H, BORDER, BG, FG, FONT, CELL_H,
         CELL_W, CELL_H, CELL_H, 0, "".join(blocks))

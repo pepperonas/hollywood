@@ -63,7 +63,7 @@ This is the **macOS port** of [Dustin Kirkland's hollywood](https://github.com/d
 The original is written for Ubuntu and reads `/sys`, `/proc` and tools that Homebrew does
 not ship; this version runs on a Mac out of the box and behaves on Linux as before.
 
-![hollywood: nine panes with a world map, falling characters, source code, a hex dump, a banner, a key fingerprint, generated passwords, network throughput and a progress bar](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/stage.png)
+![hollywood: nine named panes with a world map, falling characters, source code, a hex dump, a banner, a key fingerprint, generated passwords, network throughput and a progress bar, and the toolbar with its buttons at the bottom](https://raw.githubusercontent.com/pepperonas/hollywood/main/docs/screenshots/stage.png)
 
 ## Contents
 
@@ -123,26 +123,34 @@ hollywood --version
 | `-V`, `--version` | print the version | |
 | `-h`, `--help` | open the man page | |
 
-While the show runs, a status line at the bottom names the keys:
+While the show runs, a toolbar at the bottom holds every control as a button, and says
+what the show is doing: the seconds until the next deal, *paused* or *zoomed*. Everything
+works with the mouse and with a key:
 
-| Input | What it does |
-|---|---|
-| click on a pane | select it |
-| `x`, or a right click on a pane | close that pane — its widget stays away for the rest of the show |
-| `n` | deal the panes again now |
-| `p` or space | pause the automatic dealing, and resume it |
-| `+` `-` | one pane more or fewer |
-| `?` | show the keys |
-| `q` or `Ctrl-C` | quit |
+| Mouse | Key | What it does |
+|---|---|---|
+| click on a pane | | select it; its name on the border lights up |
+| double click on a pane | `z` | zoom: show that pane alone, and all of them again |
+| right click on a pane | | menu for that pane: close, zoom, open, deal, pause, bring back, quit |
+| drag a border | | resize the panes |
+| `x close` | `x` | close the selected pane — its widget stays away for the rest of the show |
+| `a open` | `a` | pick one of the twenty widgets and start it in a new pane now |
+| `r back (n)` | `r` | bring back what was closed |
+| `n deal` | `n` | deal the panes again now |
+| `p pause` | `p`, space | pause the automatic dealing, and resume it |
+| `-` `+` | `-` `+` | one pane fewer or more |
+| `?` | `?` | the keys, in a window of their own |
+| `q quit` | `q`, `Ctrl-C` | quit |
 
-The last pane cannot be closed; `q` ends the show. What you closed is forgotten when the
-show ends.
+The last pane cannot be closed; `q` ends the show. While a pane is zoomed or the show is
+paused, the clock stands still. What you closed is forgotten when the show ends.
 
 Started from a plain terminal, hollywood creates a tmux session named `hollywood` and
 closes it again. The controls exist only there: they live in a key table of their own and
 need tmux's mouse support, and hollywood sets neither in a session it did not create.
 Started inside an existing tmux session, it opens one window, leaves the rest alone, and
-is steered with tmux's own keys (`Ctrl-b x` closes a pane).
+is steered with tmux's own keys (`Ctrl-b x` closes a pane). The clickable toolbar needs
+tmux 3.4 or newer.
 
 A machine with many cores gets many panes — on a ten-core Mac that is all twenty widgets
 at once, which wants a large window. `-s 8` is a good number for a laptop screen.
@@ -192,9 +200,9 @@ place — see below.
   that reads the interface counters, and a hand-over to `top`. They are *appended* to
   `PATH`, so a real installation always wins. Their output looks similar to the originals,
   not identical.
-- **The show can be steered.** Upstream is watch-only. Here a pane can be closed for good,
-  the deal triggered or paused and the number of panes changed while it runs — see
-  [Usage](#usage).
+- **The show can be steered.** Upstream is watch-only. Here every pane is named, and a
+  toolbar, a context menu and a dozen keys close, open, zoom, deal and pause while it runs
+  — see [Usage](#usage).
 - **Ctrl-C ends the show cleanly.** Upstream ran `pkill -9 -f lib/hollywood/`, which also
   killed any other process with that path on its command line — an editor with a widget
   open, for one. Here a widget closes the tmux window it lives in, and nothing else.

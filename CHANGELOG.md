@@ -7,6 +7,32 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-17
+
+### Added
+- **A toolbar instead of a line of hints.** Every control is a button at the bottom of the
+  window that can be clicked: close, open, deal, pause, zoom, fewer and more panes, help,
+  quit. Beside them the bar says what the show is doing: the seconds until the next deal,
+  *paused*, or *zoomed*.
+- **Every pane carries the name of its widget** on its top border; the selected pane's
+  name is highlighted.
+- **Zoom:** a double click or `z` shows one pane alone, the same again brings all back.
+  The clock stands still while a pane is zoomed.
+- **Open a widget of your choice:** `a` lists all twenty, marked with what is on screen
+  and what was closed; picking one starts it in a new pane at once.
+- **Bring closed widgets back:** `r`, or the button that appears once something was closed.
+- **A menu on the right mouse button** for the pane under the pointer: close, zoom, open,
+  deal, pause, bring back, quit.
+- **Panes can be resized** by dragging their borders.
+- `?` opens the keys in a window of their own.
+
+### Changed
+- A right click opens the pane's menu; in 1.1.0 it closed the pane at once.
+- The clickable toolbar needs tmux 3.4 or newer; with an older tmux the keys still work.
+
+### Fixed
+- The key-art stand-in for `speedometer` drew bars two cells too wide for its pane.
+
 ## [1.1.0] - 2026-11-17
 
 ### Added

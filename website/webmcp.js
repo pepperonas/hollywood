@@ -28,7 +28,8 @@
       "Runs on macOS: Linux-only paths and options are replaced in one compatibility file",
       "Stand-ins for ccze, apg, speedometer and atop, which Homebrew does not ship",
       "Options for the number of panes and the delay between deals",
-      "Steerable while it runs: close a pane for good, deal again, pause, change the number of panes, quit",
+      "Clickable toolbar and keys while it runs: close a pane for good, open a chosen widget, zoom, deal again, pause, change the number of panes",
+      "Every pane is named; right click opens a menu for it, borders can be dragged",
       "Ctrl-C in any pane ends the show and leaves no process behind",
       "Installs with Homebrew or a verifying installer script; nothing to build",
       "No network requests, no configuration, no telemetry"

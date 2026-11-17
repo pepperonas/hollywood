@@ -246,6 +246,7 @@ class Controls(unittest.TestCase):
         (self.state / "splits").write_text("4\n")
         (self.state / "max").write_text("20\n")
         (self.state / "panes").write_text("%1 map\n%2 cmatrix\n%3 hexdump\n")
+        (self.state / "widgets").write_text(str(ROOT / "lib/hollywood") + "\n")
         self.panes = root / "panes"
         self.panes.write_text("%1\n%2\n%3\n")
         self.log = root / "log"
@@ -253,7 +254,10 @@ class Controls(unittest.TestCase):
         fake.mkdir()
         (fake / "tmux").write_text(
             '#!/bin/sh\necho "$*" >> "%s"\n'
-            'case "$1" in list-panes) cat "%s" ;; esac\n' % (self.log, self.panes))
+            'case "$1" in\n'
+            '  list-panes) case "$*" in *pane_active*) sed "1s/^/1 /;2,\\$s/^/0 /" "%s" ;; *) cat "%s" ;; esac ;;\n'
+            '  split-window) echo "%%9" ;;\n'
+            'esac\n' % (self.log, self.panes, self.panes))
         (fake / "tmux").chmod(0o755)
         self.env = dict(os.environ, PATH=str(fake) + os.pathsep + os.environ["PATH"])
 
@@ -333,6 +337,79 @@ class Controls(unittest.TestCase):
         self.run_ctl("quit")
         self.assertIn("kill-window -t @1", self.calls())
 
+    def test_close_without_a_pane_takes_the_active_one(self):
+        self.run_ctl("close")
+        self.assertEqual(self.banned(), ["map"])
+        self.assertIn("kill-pane -t %1", self.calls())
+
+    def test_zoom_toggles_the_named_pane(self):
+        self.run_ctl("zoom", "%3")
+        self.assertIn("resize-pane -Z -t %3", self.calls())
+
+    def test_zoom_leaves_panes_outside_the_show_alone(self):
+        self.run_ctl("zoom", "%99")
+        self.assertFalse([c for c in self.calls() if c.startswith("resize-pane")])
+
+    def test_open_starts_the_widget_and_lifts_its_ban(self):
+        (self.state / "banned").write_text("figlet\ncmatrix\n")
+        self.run_ctl("open", "figlet")
+        self.assertEqual(self.banned(), ["cmatrix"])
+        self.assertTrue([c for c in self.calls() if c.startswith("split-window") and c.endswith("/lib/hollywood/figlet'")])
+        self.assertIn("%9 figlet", (self.state / "panes").read_text().splitlines())
+        self.assertIn("set-option -p -t %9 @widget figlet", self.calls())
+
+    def test_open_takes_only_names_of_widgets(self):
+        # the name ends up in a command line: nothing that is not a widget file may pass
+        for name in ("../../bin/hollywood", "/bin/sh", "nosuchwidget", "", ".hidden", "figlet; touch x"):
+            self.run_ctl("open", name)
+        self.assertFalse([c for c in self.calls() if c.startswith("split-window")])
+
+    def test_restore_lifts_every_ban_and_deals(self):
+        (self.state / "banned").write_text("figlet\ncmatrix\n")
+        self.run_ctl("restore")
+        self.assertEqual(self.banned(), [])
+        self.assertTrue((self.state / "deal").exists())
+
+    def test_restore_with_nothing_closed_does_not_deal(self):
+        self.run_ctl("restore")
+        self.assertFalse((self.state / "deal").exists())
+
+    def test_a_toolbar_button_does_what_its_key_does(self):
+        self.run_ctl("button", "pause")
+        self.assertTrue((self.state / "paused").exists())
+        self.run_ctl("button", "more")
+        self.assertEqual((self.state / "splits").read_text().strip(), "5")
+        self.run_ctl("button", "quit")
+        self.assertIn("kill-window -t @1", self.calls())
+
+    def test_a_click_beside_the_buttons_does_nothing(self):
+        # tmux reports an empty range for a click on plain text of the bar
+        for name in ("", "bogus", "open", "panemenu", "helppage"):
+            self.run_ctl("button", name)
+        self.assertFalse([c for c in self.calls() if not c.startswith("list-panes")])
+        self.assertEqual(sorted(p.name for p in self.state.iterdir()),
+                         ["banned", "max", "panes", "splits", "widgets", "window"])
+
+    def test_the_widget_menu_lists_every_widget_with_its_state(self):
+        (self.state / "banned").write_text("figlet\n")
+        self.run_ctl("menu")
+        menu = [c for c in self.calls() if c.startswith("display-menu")][0]
+        for w in WIDGETS:
+            self.assertIn(" %s " % w.name, menu)
+        self.assertIn("x figlet", menu)
+
+    def test_the_pane_menu_acts_on_the_pane_that_was_clicked(self):
+        self.run_ctl("panemenu", "%2")
+        menu = [c for c in self.calls() if c.startswith("display-menu")][0]
+        self.assertIn("-T  cmatrix ", menu)
+        self.assertIn("close '%2'", menu)
+        self.assertIn("zoom '%2'", menu)
+
+    def test_the_help_page_names_every_key(self):
+        text = run([self.ctl, str(self.state), "helppage"], env=self.env, stdin="\n").stdout
+        for key in ("x ", "a ", "r ", "n ", "p ", "+ -", "q ", "double click", "right click"):
+            self.assertIn(key, text)
+
     def test_without_a_state_directory_nothing_happens(self):
         r = run([self.ctl, str(self.state) + "-gone", "quit"], env=self.env)
         self.assertEqual(r.returncode, 0)
@@ -372,13 +449,51 @@ class Interaction(unittest.TestCase):
     def test_keys_live_in_their_own_table_not_in_root(self):
         body = COMMENT.sub("", self.function("controls"))
         binds = re.findall(r"bind-key (.*)", body)
-        self.assertGreaterEqual(len(binds), 9)
+        self.assertGreaterEqual(len(binds), 16)
         self.assertTrue(all(b.startswith("-T $PKG ") for b in binds), binds)
 
-    def test_every_key_in_the_status_line_is_bound(self):
+    def test_every_control_is_bound(self):
         body = COMMENT.sub("", self.function("controls"))
-        for key in ("MouseDown1Pane", "MouseDown3Pane", "x", "n", "p", "+", "-", "q"):
+        for key in ("MouseDown1Pane", "DoubleClick1Pane", "MouseDown3Pane", "MouseDrag1Border",
+                    "MouseDown1Status", "x", "z", "a", "r", "n", "p", "Space", "+", "-", "?", "q"):
             self.assertRegex(body, r"bind-key -T \$PKG %s " % re.escape(key))
+
+    def test_every_toolbar_button_has_a_command_and_a_key(self):
+        bar = self.function("toolbar")
+        names = set(re.findall(r"range=user\|(\w+)", bar))
+        self.assertEqual(names, {"close", "menu", "restore", "deal", "pause", "zoom", "less", "more", "help", "quit"})
+        ctl = (ROOT / "share/hollywood/ctl").read_text()
+        allowed = set(re.search(r"case \"\$arg\" in\s+([a-z|]+)\)", ctl).group(1).split("|"))
+        self.assertEqual(names, allowed, "a button without a command, or a command without a button")
+        for name in names:
+            self.assertRegex(ctl, r"(?m)^\t(\w+\|)*%s(\|\w+)*\)$" % name)
+        self.assertIn("MouseDown1Status run-shell -b \"$ctl button '#{mouse_status_range}'\"", self.function("controls"))
+
+    def test_no_key_holds_up_the_tmux_server(self):
+        # run-shell without -b waits for its command - and a popup or a menu started
+        # from there waits for the server: the show froze on "?" (found in the first run)
+        body = COMMENT.sub("", self.function("controls"))
+        self.assertGreaterEqual(body.count("run-shell -b "), 13)
+        self.assertEqual(body.count("run-shell "), body.count("run-shell -b "))
+        self.assertRegex(body, r'bind-key -T \$PKG \? display-popup [^\n]*helppage')
+
+    def test_the_clock_stands_still_while_paused_or_zoomed(self):
+        loop = self.src[self.src.index("i=0\nwhile true"):]
+        self.assertRegex(loop, r'elif \[ -e "\$STATE/paused" \] \|\| zoomed; then\s+:\s+else\s+i=\$\(\(i\+1\)\)')
+
+    def test_every_pane_carries_the_name_of_its_widget(self):
+        self.assertIn('set-option -p -t "$id" @widget "$3"', self.function("start_widget"))
+        self.assertIn('@widget "$widget1"', self.src)
+        self.assertIn("#{@widget}", self.function("controls"))
+
+    def test_the_picture_of_the_toolbar_is_the_toolbar(self):
+        # tools/screenshots.sh draws the bar itself; it must show the real buttons, in order
+        def buttons(text):
+            return re.findall(r"range=user\|(\w+)\]\$\{?b\}? ([^$#]*?) \$", text)
+        real = [b for b in buttons(self.function("toolbar")) if b[0] != "restore"]   # only shown after a close
+        shot = buttons((ROOT / "tools/screenshots.sh").read_text())
+        self.assertGreaterEqual(len(real), 9)
+        self.assertEqual(shot, real)
 
     def test_the_state_is_removed_before_the_session_is_killed(self):
         # the launcher runs inside the session and dies with it
@@ -391,7 +506,6 @@ class Interaction(unittest.TestCase):
     def test_a_deal_asked_by_key_restarts_the_clock(self):
         loop = self.src[self.src.index("i=0\nwhile true"):]
         self.assertRegex(loop, r'if \[ -e "\$STATE/deal" \]; then\s+rm -f "\$STATE/deal"\s+deal\s+i=0')
-        self.assertRegex(loop, r'elif \[ ! -e "\$STATE/paused" \] &&')
 
     def test_ctl_is_executable_and_valid(self):
         self.assertTrue(os.access(ROOT / "share/hollywood/ctl", os.X_OK))
