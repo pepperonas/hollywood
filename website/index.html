@@ -17,9 +17,9 @@
   <meta name="color-scheme" content="dark">
   <meta name="format-detection" content="telephone=no">
   <link rel="canonical" href="https://hollywood.celox.io/">
-  <link rel="icon" href="assets/mark.svg?v=5" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=5">
-  <link rel="preload" as="image" type="image/webp" imagesrcset="assets/hero-1400.webp?v=5 1400w, assets/hero-2400.webp?v=5 2400w" imagesizes="100vw">
+  <link rel="icon" href="assets/mark.svg?v=6" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=6">
+  <link rel="preload" as="image" type="image/webp" imagesrcset="assets/hero-1400.webp?v=6 1400w, assets/hero-2400.webp?v=6 2400w" imagesizes="100vw">
   <!-- For agents and tools: machine-readable facts about the app and its newest release. -->
   <link rel="ai-catalog" href="/.well-known/ai-catalog.json" type="application/json">
   <link rel="alternate" type="text/markdown" href="/llms.txt" title="hollywood for LLMs and agents">
@@ -37,8 +37,8 @@
   <meta property="og:locale:alternate" content="es_ES">
   <meta property="og:locale:alternate" content="it_IT">
   <meta property="og:locale:alternate" content="fr_FR">
-  <meta property="og:image" content="https://hollywood.celox.io/assets/og.jpg?v=5">
-  <meta property="og:image:secure_url" content="https://hollywood.celox.io/assets/og.jpg?v=5">
+  <meta property="og:image" content="https://hollywood.celox.io/assets/og.jpg?v=6">
+  <meta property="og:image:secure_url" content="https://hollywood.celox.io/assets/og.jpg?v=6">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -46,7 +46,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="hollywood — your terminal, ready for its close‑up.">
   <meta name="twitter:description" content="The hacker screen from every film, in your own terminal. Free, open source, macOS and Linux.">
-  <meta name="twitter:image" content="https://hollywood.celox.io/assets/og.jpg?v=5">
+  <meta name="twitter:image" content="https://hollywood.celox.io/assets/og.jpg?v=6">
   <meta name="twitter:image:alt" content="A terminal split into nine panes: a world map, falling characters, source code, a hex dump, block letters, a key fingerprint, passwords, network throughput and a progress bar">
 
   <script type="application/ld+json">
@@ -58,7 +58,7 @@
   "name": "hollywood",
   "description": "hollywood is a free, open-source (Apache-2.0) program that splits a terminal into tmux panes and fills each one with busy-looking output: a world map as ASCII art, falling characters, hex dumps, scrolling source code, SSH key art, network throughput and more - twenty widgets, dealt again every few seconds. This is the macOS port of Dustin Kirkland's hollywood: it replaces the Linux-only paths and ships small stand-ins for the programs Homebrew does not have, so it runs on a Mac with one command and behaves on Linux as before. It makes no network requests and needs no configuration.",
   "url": "https://hollywood.celox.io/",
-  "image": "https://hollywood.celox.io/assets/og.jpg?v=5",
+  "image": "https://hollywood.celox.io/assets/og.jpg?v=6",
   "operatingSystem": "macOS, Linux",
   "applicationCategory": "UtilitiesApplication",
   "downloadUrl": "https://hollywood.celox.io/download",
@@ -91,11 +91,11 @@
   ],
   "featureList": [
    "Twenty widgets: world map, falling characters, hex dumps, source code, key art, passwords, error codes, manual pages, process monitors, network throughput, progress bars",
-   "Panes are split at random and dealt again every few seconds",
+   "One pane at a time gets another widget, in place: layout, sizes and selection stay",
    "Runs on macOS: Linux-only paths and options are replaced in one compatibility file",
    "Stand-ins for ccze, apg, speedometer and atop, which Homebrew does not ship",
-   "Options for the number of panes and the delay between deals",
-   "Clickable toolbar and keys while it runs: close a pane for good, open a chosen widget, zoom, deal again, pause, change the number of panes",
+   "Options for the number of panes, the delay between changes and for rebuilding the whole screen each time",
+   "Clickable toolbar and keys while it runs: swap or keep a pane, close one for good, open a chosen widget, zoom, pause, add and remove panes without disturbing the rest",
    "Every pane is named; right click opens a menu for it, borders can be dragged",
    "Ctrl-C in any pane ends the show and leaves no process behind",
    "Installs with Homebrew or a verifying installer script; nothing to build",
@@ -113,12 +113,12 @@
   },
   "applicationSubCategory": "Terminal screensaver",
   "screenshot": [
-   "https://hollywood.celox.io/assets/gallery/stage.jpg?v=5",
-   "https://hollywood.celox.io/assets/gallery/map.jpg?v=5",
-   "https://hollywood.celox.io/assets/gallery/cmatrix.jpg?v=5",
-   "https://hollywood.celox.io/assets/gallery/hexdump.jpg?v=5",
-   "https://hollywood.celox.io/assets/gallery/code.jpg?v=5",
-   "https://hollywood.celox.io/assets/gallery/apg.jpg?v=5"
+   "https://hollywood.celox.io/assets/gallery/stage.jpg?v=6",
+   "https://hollywood.celox.io/assets/gallery/map.jpg?v=6",
+   "https://hollywood.celox.io/assets/gallery/cmatrix.jpg?v=6",
+   "https://hollywood.celox.io/assets/gallery/hexdump.jpg?v=6",
+   "https://hollywood.celox.io/assets/gallery/code.jpg?v=6",
+   "https://hollywood.celox.io/assets/gallery/apg.jpg?v=6"
   ]
  },
  {
@@ -205,18 +205,18 @@
 ]
   </script>
 
-  <link rel="stylesheet" href="styles.css?v=5">
-  <script src="i18n.js?v=5" defer></script>
-  <script src="app.js?v=5" defer></script>
-  <script src="changelog.js?v=5" defer></script>
-  <script src="webmcp.js?v=5" defer></script>
+  <link rel="stylesheet" href="styles.css?v=6">
+  <script src="i18n.js?v=6" defer></script>
+  <script src="app.js?v=6" defer></script>
+  <script src="changelog.js?v=6" defer></script>
+  <script src="webmcp.js?v=6" defer></script>
 </head>
 <body>
   <a class="skip" href="#main" data-i18n="skip">Skip to content</a>
 
   <header class="bar">
     <a class="brand" href="#top" aria-label="hollywood">
-      <img src="assets/mark.svg?v=5" alt="" width="28" height="28">
+      <img src="assets/mark.svg?v=6" alt="" width="28" height="28">
       <span>hollywood</span>
     </a>
     <nav class="bar-links" aria-label="Main">
@@ -249,15 +249,15 @@
     <section class="hero" id="top">
       <picture class="hero-bg" aria-hidden="true">
         <source type="image/webp" sizes="100vw"
-                srcset="assets/hero-1400.webp?v=5 1400w, assets/hero-2400.webp?v=5 2400w">
-        <img src="assets/hero.jpg?v=5" alt="" width="2912" height="1440" fetchpriority="high">
+                srcset="assets/hero-1400.webp?v=6 1400w, assets/hero-2400.webp?v=6 2400w">
+        <img src="assets/hero.jpg?v=6" alt="" width="2912" height="1440" fetchpriority="high">
       </picture>
       <div class="hero-scrim" aria-hidden="true"></div>
 
       <div class="hero-content">
         <p class="kicker" data-i18n="hero.kicker">Terminal · Open source · Free</p>
         <h1 data-i18n="hero.title">Your terminal, <br>ready for its close‑up.</h1>
-        <p class="lead" data-i18n="hero.lead">hollywood fills your terminal with the screen from every hacker film: a world map, falling code, hex dumps and key art in panes that are dealt again every few seconds. This is the macOS port — one command, nothing to configure.</p>
+        <p class="lead" data-i18n="hero.lead">hollywood fills your terminal with the screen from every hacker film: a world map, falling code, hex dumps and key art in panes that change their act one after the other. This is the macOS port — one command, nothing to configure.</p>
 
         <div class="cta">
           <a class="btn primary" id="dl" href="/download" aria-describedby="dl-meta">
@@ -290,7 +290,7 @@
         </article>
         <article class="card">
           <h3 data-i18n="f2.t">Never the same screen twice</h3>
-          <p data-i18n="f2.p">The panes are split at random, horizontally and vertically, and after a delay all but one are closed and dealt again. <code>-s</code> sets the number of panes, <code>-d</code> the seconds between deals.</p>
+          <p data-i18n="f2.p">The panes are split at random, horizontally and vertically, and every few seconds one of them gets another widget, in place — the layout stays as you arranged it. <code>-s</code> sets the number of panes, <code>-d</code> the seconds between changes, <code>-r</code> rebuilds the whole screen each time.</p>
         </article>
         <article class="card">
           <h3 data-i18n="f3.t">At home on the Mac</h3>
@@ -302,7 +302,7 @@
         </article>
         <article class="card">
           <h3 data-i18n="f5.t">You direct the show</h3>
-          <p data-i18n="f5.p">A toolbar at the bottom holds every control as a button: close a pane for good, open the widget you want, deal again, pause, zoom. Each pane carries its name, a right click opens its menu, a double click zooms it — and every button has a key. The original can only be watched.</p>
+          <p data-i18n="f5.p">A toolbar at the bottom holds every control as a button: put another widget into a pane, keep a pane as it is, close one for good, open the widget you want, pause, zoom. Each pane carries its name, a right click opens its menu, a double click zooms it — and every button has a key. The original can only be watched.</p>
         </article>
         <article class="card">
           <h3 data-i18n="f6.t">Stays on your machine</h3>
@@ -317,8 +317,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="stage" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/stage.webp?v=5" type="image/webp">
-              <img src="assets/gallery/stage.jpg?v=5" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/stage.webp?v=6" type="image/webp">
+              <img src="assets/gallery/stage.jpg?v=6" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g1.t" alt="The full show">
             </picture>
           </button>
@@ -327,8 +327,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="map" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/map.webp?v=5" type="image/webp">
-              <img src="assets/gallery/map.jpg?v=5" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/map.webp?v=6" type="image/webp">
+              <img src="assets/gallery/map.jpg?v=6" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g2.t" alt="World map">
             </picture>
           </button>
@@ -337,8 +337,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="cmatrix" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/cmatrix.webp?v=5" type="image/webp">
-              <img src="assets/gallery/cmatrix.jpg?v=5" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/cmatrix.webp?v=6" type="image/webp">
+              <img src="assets/gallery/cmatrix.jpg?v=6" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g3.t" alt="Falling characters">
             </picture>
           </button>
@@ -347,8 +347,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="hexdump" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/hexdump.webp?v=5" type="image/webp">
-              <img src="assets/gallery/hexdump.jpg?v=5" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/hexdump.webp?v=6" type="image/webp">
+              <img src="assets/gallery/hexdump.jpg?v=6" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g4.t" alt="Hex dump">
             </picture>
           </button>
@@ -357,8 +357,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="code" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/code.webp?v=5" type="image/webp">
-              <img src="assets/gallery/code.jpg?v=5" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/code.webp?v=6" type="image/webp">
+              <img src="assets/gallery/code.jpg?v=6" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g5.t" alt="Source code">
             </picture>
           </button>
@@ -367,8 +367,8 @@
         <figure class="shot">
           <button type="button" class="shot-open" data-shot="apg" data-i18n-aria="g.zoom" aria-label="Enlarge">
             <picture>
-              <source srcset="assets/gallery/apg.webp?v=5" type="image/webp">
-              <img src="assets/gallery/apg.jpg?v=5" width="1120" height="800" loading="lazy" decoding="async"
+              <source srcset="assets/gallery/apg.webp?v=6" type="image/webp">
+              <img src="assets/gallery/apg.jpg?v=6" width="1120" height="800" loading="lazy" decoding="async"
                    data-i18n-alt="g6.t" alt="Passwords">
             </picture>
           </button>

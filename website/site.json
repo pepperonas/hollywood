@@ -9,7 +9,7 @@
  "license": "Apache-2.0",
  "tls": "wildcard",
  "year": 2026,
- "asset_version": 5,
+ "asset_version": 6,
  "theme_source": "the terminal palette of the screenshots (tools/termshot.py): dark slate background, the green of the falling characters as primary, amber as the warm accent",
  "theme": {
   "bg": "#0b0d12",
@@ -99,11 +99,11 @@
   "meta_fallback": "Newest release · macOS and Linux · free, Apache-2.0",
   "feature_list": [
    "Twenty widgets: world map, falling characters, hex dumps, source code, key art, passwords, error codes, manual pages, process monitors, network throughput, progress bars",
-   "Panes are split at random and dealt again every few seconds",
+   "One pane at a time gets another widget, in place: layout, sizes and selection stay",
    "Runs on macOS: Linux-only paths and options are replaced in one compatibility file",
    "Stand-ins for ccze, apg, speedometer and atop, which Homebrew does not ship",
-   "Options for the number of panes and the delay between deals",
-   "Clickable toolbar and keys while it runs: close a pane for good, open a chosen widget, zoom, deal again, pause, change the number of panes",
+   "Options for the number of panes, the delay between changes and for rebuilding the whole screen each time",
+   "Clickable toolbar and keys while it runs: swap or keep a pane, close one for good, open a chosen widget, zoom, pause, add and remove panes without disturbing the rest",
    "Every pane is named; right click opens a menu for it, borders can be dragged",
    "Ctrl-C in any pane ends the show and leaves no process behind",
    "Installs with Homebrew or a verifying installer script; nothing to build",
@@ -146,11 +146,11 @@
    "fr": "Votre terminal, <br>prêt pour son gros plan."
   },
   "hero.lead": {
-   "en": "hollywood fills your terminal with the screen from every hacker film: a world map, falling code, hex dumps and key art in panes that are dealt again every few seconds. This is the macOS port — one command, nothing to configure.",
-   "de": "hollywood füllt dein Terminal mit dem Bildschirm aus jedem Hackerfilm: Weltkarte, fallender Code, Hexdumps und Schlüsselbilder in Fenstern, die alle paar Sekunden neu verteilt werden. Dies ist die Portierung für macOS — ein Befehl, nichts einzustellen.",
-   "es": "hollywood llena tu terminal con la pantalla de toda película de hackers: un mapamundi, código que cae, volcados hexadecimales y arte de claves en paneles que se reparten de nuevo cada pocos segundos. Esta es la versión para macOS: un comando, nada que configurar.",
-   "it": "hollywood riempie il terminale con lo schermo di ogni film di hacker: una mappa del mondo, codice che cade, dump esadecimali e arte delle chiavi in riquadri ridistribuiti ogni pochi secondi. Questa è la versione per macOS: un comando, niente da configurare.",
-   "fr": "hollywood remplit votre terminal avec l'écran de tous les films de hackers : une carte du monde, du code qui tombe, des dumps hexadécimaux et des empreintes de clés dans des panneaux redistribués toutes les quelques secondes. Voici le portage pour macOS : une commande, rien à configurer."
+   "en": "hollywood fills your terminal with the screen from every hacker film: a world map, falling code, hex dumps and key art in panes that change their act one after the other. This is the macOS port — one command, nothing to configure.",
+   "de": "hollywood füllt dein Terminal mit dem Bildschirm aus jedem Hackerfilm: Weltkarte, fallender Code, Hexdumps und Schlüsselbilder in Fenstern, die eins nach dem anderen ihr Programm wechseln. Dies ist die Portierung für macOS — ein Befehl, nichts einzustellen.",
+   "es": "hollywood llena tu terminal con la pantalla de toda película de hackers: un mapamundi, código que cae, volcados hexadecimales y arte de claves en paneles que cambian de número uno tras otro. Esta es la versión para macOS: un comando, nada que configurar.",
+   "it": "hollywood riempie il terminale con lo schermo di ogni film di hacker: una mappa del mondo, codice che cade, dump esadecimali e arte delle chiavi in riquadri che cambiano scena uno dopo l'altro. Questa è la versione per macOS: un comando, niente da configurare.",
+   "fr": "hollywood remplit votre terminal avec l'écran de tous les films de hackers : une carte du monde, du code qui tombe, des dumps hexadécimaux et des empreintes de clés dans des panneaux qui changent de numéro l'un après l'autre. Voici le portage pour macOS : une commande, rien à configurer."
   },
   "pl.h": {
    "en": "Runs where tmux runs",
@@ -192,11 +192,11 @@
      "fr": "Jamais deux fois le même écran"
     },
     "p": {
-     "en": "The panes are split at random, horizontally and vertically, and after a delay all but one are closed and dealt again. <code>-s</code> sets the number of panes, <code>-d</code> the seconds between deals.",
-     "de": "Die Fenster werden zufällig geteilt, waagerecht und senkrecht, und nach einer Pause bis auf eines geschlossen und neu verteilt. <code>-s</code> bestimmt die Zahl der Fenster, <code>-d</code> die Sekunden zwischen den Wechseln.",
-     "es": "Los paneles se dividen al azar, en horizontal y en vertical, y tras una pausa se cierran todos menos uno y se reparten de nuevo. <code>-s</code> fija el número de paneles y <code>-d</code> los segundos entre repartos.",
-     "it": "I riquadri vengono divisi a caso, in orizzontale e in verticale, e dopo una pausa vengono chiusi tutti tranne uno e ridistribuiti. <code>-s</code> imposta il numero di riquadri, <code>-d</code> i secondi tra una distribuzione e l'altra.",
-     "fr": "Les panneaux sont divisés au hasard, horizontalement et verticalement, puis tous sauf un sont fermés et redistribués après un délai. <code>-s</code> fixe le nombre de panneaux, <code>-d</code> les secondes entre deux distributions."
+     "en": "The panes are split at random, horizontally and vertically, and every few seconds one of them gets another widget, in place — the layout stays as you arranged it. <code>-s</code> sets the number of panes, <code>-d</code> the seconds between changes, <code>-r</code> rebuilds the whole screen each time.",
+     "de": "Die Fenster werden zufällig geteilt, waagerecht und senkrecht, und alle paar Sekunden bekommt eines davon ein anderes Widget, an Ort und Stelle — die Anordnung bleibt, wie du sie eingerichtet hast. <code>-s</code> bestimmt die Zahl der Fenster, <code>-d</code> die Sekunden zwischen den Wechseln, <code>-r</code> baut jedes Mal den ganzen Bildschirm neu auf.",
+     "es": "Los paneles se dividen al azar, en horizontal y en vertical, y cada pocos segundos uno de ellos recibe otro widget, en su sitio: la disposición queda como la dejaste. <code>-s</code> fija el número de paneles, <code>-d</code> los segundos entre cambios y <code>-r</code> reconstruye toda la pantalla cada vez.",
+     "it": "I riquadri vengono divisi a caso, in orizzontale e in verticale, e ogni pochi secondi uno di essi riceve un altro widget, sul posto: la disposizione resta come l'hai sistemata. <code>-s</code> imposta il numero di riquadri, <code>-d</code> i secondi tra un cambio e l'altro, <code>-r</code> ricostruisce ogni volta l'intero schermo.",
+     "fr": "Les panneaux sont divisés au hasard, horizontalement et verticalement, et toutes les quelques secondes l'un d'eux reçoit un autre widget, sur place : la disposition reste telle que vous l'avez arrangée. <code>-s</code> fixe le nombre de panneaux, <code>-d</code> les secondes entre deux changements, <code>-r</code> reconstruit tout l'écran à chaque fois."
     }
    },
    {
@@ -240,11 +240,11 @@
      "fr": "Vous dirigez le spectacle"
     },
     "p": {
-     "en": "A toolbar at the bottom holds every control as a button: close a pane for good, open the widget you want, deal again, pause, zoom. Each pane carries its name, a right click opens its menu, a double click zooms it — and every button has a key. The original can only be watched.",
-     "de": "Eine Werkzeugleiste am unteren Rand hält jede Funktion als Knopf bereit: ein Fenster dauerhaft schließen, das gewünschte Widget öffnen, neu verteilen, anhalten, vergrößern. Jedes Fenster trägt seinen Namen, ein Rechtsklick öffnet sein Menü, ein Doppelklick vergrößert es — und jeder Knopf hat eine Taste. Dem Original kann man nur zusehen.",
-     "es": "Una barra de herramientas en la parte inferior ofrece cada función como un botón: cerrar un panel definitivamente, abrir el widget que quieras, repartir de nuevo, pausar, ampliar. Cada panel lleva su nombre, el clic derecho abre su menú y el doble clic lo amplía, y cada botón tiene su tecla. El original solo se puede mirar.",
-     "it": "Una barra degli strumenti in basso offre ogni funzione come pulsante: chiudere un riquadro definitivamente, aprire il widget che vuoi, ridistribuire, mettere in pausa, ingrandire. Ogni riquadro porta il suo nome, il clic destro apre il suo menu, il doppio clic lo ingrandisce, e ogni pulsante ha un tasto. L'originale si può solo guardare.",
-     "fr": "Une barre d'outils en bas propose chaque fonction sous forme de bouton : fermer un panneau pour de bon, ouvrir le widget de votre choix, redistribuer, mettre en pause, agrandir. Chaque panneau porte son nom, un clic droit ouvre son menu, un double clic l'agrandit, et chaque bouton a sa touche. L'original ne peut qu'être regardé."
+     "en": "A toolbar at the bottom holds every control as a button: put another widget into a pane, keep a pane as it is, close one for good, open the widget you want, pause, zoom. Each pane carries its name, a right click opens its menu, a double click zooms it — and every button has a key. The original can only be watched.",
+     "de": "Eine Werkzeugleiste am unteren Rand hält jede Funktion als Knopf bereit: einem Fenster ein anderes Widget geben, ein Fenster festhalten, eines dauerhaft schließen, das gewünschte Widget öffnen, anhalten, vergrößern. Jedes Fenster trägt seinen Namen, ein Rechtsklick öffnet sein Menü, ein Doppelklick vergrößert es — und jeder Knopf hat eine Taste. Dem Original kann man nur zusehen.",
+     "es": "Una barra de herramientas en la parte inferior ofrece cada función como un botón: poner otro widget en un panel, conservar un panel tal cual, cerrar uno definitivamente, abrir el widget que quieras, pausar, ampliar. Cada panel lleva su nombre, el clic derecho abre su menú y el doble clic lo amplía, y cada botón tiene su tecla. El original solo se puede mirar.",
+     "it": "Una barra degli strumenti in basso offre ogni funzione come pulsante: mettere un altro widget in un riquadro, tenere un riquadro com'è, chiuderne uno definitivamente, aprire il widget che vuoi, mettere in pausa, ingrandire. Ogni riquadro porta il suo nome, il clic destro apre il suo menu, il doppio clic lo ingrandisce, e ogni pulsante ha un tasto. L'originale si può solo guardare.",
+     "fr": "Une barre d'outils en bas propose chaque fonction sous forme de bouton : mettre un autre widget dans un panneau, garder un panneau tel quel, en fermer un pour de bon, ouvrir le widget de votre choix, mettre en pause, agrandir. Chaque panneau porte son nom, un clic droit ouvre son menu, un double clic l'agrandit, et chaque bouton a sa touche. L'original ne peut qu'être regardé."
     }
    },
    {

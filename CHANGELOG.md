@@ -7,6 +7,25 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-17
+
+### Changed
+- **The show no longer rebuilds itself.** Until now all panes but one were closed and
+  dealt again every ten seconds - whatever one had selected, resized, zoomed or opened was
+  gone each time. Now one pane at a time gets another widget, every 15 seconds, in place:
+  the layout, the sizes and the selection stay. The pane that has shown its widget longest
+  goes first; the selected one is left alone as long as there is another.
+- `+` adds one pane (the largest is halved) and `-` takes the newest away. Neither touches
+  the other panes, and `-` does not ban a widget.
+- `r` allows closed widgets again without rebuilding the screen.
+- `n` still builds the whole screen anew - on request only.
+
+### Added
+- **Keep a pane** with `k`: it is marked `[kept]`, is never swapped and survives `n`.
+- **Swap a pane now** with `s`: another widget in the selected pane.
+- `-r`, `--redeal` brings back the old behaviour: the whole screen anew every `-d` seconds.
+- Closing the terminal window (SIGHUP) cleans up like Ctrl-C does.
+
 ## [1.2.0] - 2026-11-17
 
 ### Added

@@ -32,10 +32,10 @@ Everything below is also available without JavaScript: the page's HTML carries t
 ## Features
 
 - Twenty widgets: A world map as ASCII art, falling characters, hex dumps, source code, SSH key art, generated passwords, error codes, manual pages, process monitors, network throughput and progress bars — each in its own pane.
-- Never the same screen twice: The panes are split at random, horizontally and vertically, and after a delay all but one are closed and dealt again. `-s` sets the number of panes, `-d` the seconds between deals.
+- Never the same screen twice: The panes are split at random, horizontally and vertically, and every few seconds one of them gets another widget, in place — the layout stays as you arranged it. `-s` sets the number of panes, `-d` the seconds between changes, `-r` rebuilds the whole screen each time.
 - At home on the Mac: The original is written for Ubuntu and reads `/sys` and `/proc`. One compatibility file replaces what only Linux has, so every widget finds its material on macOS — and on Linux everything stays as it was.
 - Stand-ins for what Homebrew lacks: `ccze`, `apg` and `speedometer` are not in Homebrew, and `atop` is Linux-only. hollywood brings small replacements for all four. Install the real program and it takes over.
-- You direct the show: A toolbar at the bottom holds every control as a button: close a pane for good, open the widget you want, deal again, pause, zoom. Each pane carries its name, a right click opens its menu, a double click zooms it — and every button has a key. The original can only be watched.
+- You direct the show: A toolbar at the bottom holds every control as a button: put another widget into a pane, keep a pane as it is, close one for good, open the widget you want, pause, zoom. Each pane carries its name, a right click opens its menu, a double click zooms it — and every button has a key. The original can only be watched.
 - Stays on your machine: hollywood makes no network requests, has no account, no configuration file and no telemetry. The widgets run at the lowest scheduling priority, so the show does not get in the way of real work.
 
 ## Scope and limits

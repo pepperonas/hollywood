@@ -57,7 +57,7 @@
 hollywood splits your terminal into panes and fills each one with something that looks
 busy: a world map, falling code, hex dumps, scrolling source, key fingerprints, network
 traffic. It is the screen in the background of every film in which someone says "I'm in".
-Every few seconds the panes are torn down and dealt again.
+Every few seconds one of the panes changes its act.
 
 This is the **macOS port** of [Dustin Kirkland's hollywood](https://github.com/dustinkirkland/hollywood).
 The original is written for Ubuntu and reads `/sys`, `/proc` and tools that Homebrew does
@@ -112,38 +112,47 @@ Only `tmux` is required. A widget whose program is missing simply does not show 
 ```sh
 hollywood                 # as many panes as fit this machine
 hollywood -s 8            # eight panes
-hollywood -s 6 -d 20      # six panes, dealt again every 20 seconds
+hollywood -s 6 -d 30      # six panes, one of them changes every 30 seconds
+hollywood -r -d 20        # as upstream: the whole screen anew every 20 seconds
 hollywood --version
 ```
 
 | Option | Meaning | Default |
 |---|---|---|
 | `-s`, `--splits N` | number of panes | twice the CPU count, at most the number of widgets |
-| `-d`, `--delay S` | seconds until the panes are dealt again | 10 |
+| `-d`, `--delay S` | seconds between two changes | 15 |
+| `-r`, `--redeal` | change the whole screen each time instead of one pane | off |
 | `-V`, `--version` | print the version | |
 | `-h`, `--help` | open the man page | |
 
 While the show runs, a toolbar at the bottom holds every control as a button, and says
-what the show is doing: the seconds until the next deal, *paused* or *zoomed*. Everything
-works with the mouse and with a key:
+what the show is doing: the seconds until the next swap, *paused* or *zoomed*.
+
+**The screen is yours.** By itself the show changes one pane at a time: every 15 seconds
+the pane that has shown its widget longest gets another one, in place. The layout, the
+sizes you dragged and your selection stay; the pane you selected is the last to change.
+Nothing is rebuilt unless you ask for it.
 
 | Mouse | Key | What it does |
 |---|---|---|
 | click on a pane | | select it; its name on the border lights up |
 | double click on a pane | `z` | zoom: show that pane alone, and all of them again |
-| right click on a pane | | menu for that pane: close, zoom, open, deal, pause, bring back, quit |
+| right click on a pane | | menu for that pane |
 | drag a border | | resize the panes |
+| `s swap` | `s` | another widget in the selected pane, now |
+| `k keep` | `k` | keep the selected pane as it is (`[kept]`): never swapped, survives `n`; again to let it go |
 | `x close` | `x` | close the selected pane — its widget stays away for the rest of the show |
-| `a open` | `a` | pick one of the twenty widgets and start it in a new pane now |
-| `r back (n)` | `r` | bring back what was closed |
-| `n deal` | `n` | deal the panes again now |
-| `p pause` | `p`, space | pause the automatic dealing, and resume it |
-| `-` `+` | `-` `+` | one pane fewer or more |
+| `a open` | `a` | pick one of the twenty widgets and start it in a new pane |
+| `r back (n)` | `r` | allow the closed widgets again |
+| `-` `+` | `-` `+` | one pane fewer or more; the others stay as they are |
+| `z zoom` | `z` | see above |
+| `p pause` | `p`, space | pause the swapping, and resume it |
+| `n deal` | `n` | build the whole screen anew; kept panes stay |
 | `?` | `?` | the keys, in a window of their own |
 | `q quit` | `q`, `Ctrl-C` | quit |
 
 The last pane cannot be closed; `q` ends the show. While a pane is zoomed or the show is
-paused, the clock stands still. What you closed is forgotten when the show ends.
+paused, the clock stands still. What you closed or kept is forgotten when the show ends.
 
 Started from a plain terminal, hollywood creates a tmux session named `hollywood` and
 closes it again. The controls exist only there: they live in a key table of their own and
@@ -201,7 +210,8 @@ place — see below.
   `PATH`, so a real installation always wins. Their output looks similar to the originals,
   not identical.
 - **The show can be steered.** Upstream is watch-only. Here every pane is named, and a
-  toolbar, a context menu and a dozen keys close, open, zoom, deal and pause while it runs
+  toolbar, a context menu and a dozen keys swap, keep, close, open and zoom while it runs,
+  and the show changes one pane at a time instead of rebuilding the screen
   — see [Usage](#usage).
 - **Ctrl-C ends the show cleanly.** Upstream ran `pkill -9 -f lib/hollywood/`, which also
   killed any other process with that path on its command line — an editor with a widget
@@ -228,8 +238,8 @@ choice.
 `bin/hollywood` starts a tmux session, opens a window with one widget and keeps splitting
 it — alternating horizontally and vertically, at a random pane — until the requested number
 of panes is reached. Every pane runs one script from `lib/hollywood/` at the lowest
-scheduling priority (`nice -n 19`). After the delay, all panes but one are closed and the
-deal starts again with a new shuffle.
+scheduling priority (`nice -n 19`). After the delay one pane is respawned with another
+widget (`ctl swap`); with `-r` all panes but one are closed and dealt again, as upstream does.
 
 Nothing is installed in the background, nothing is configured, and nothing leaves the
 machine: no network requests, no telemetry.

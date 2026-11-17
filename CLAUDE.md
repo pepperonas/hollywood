@@ -16,10 +16,21 @@ brew `pepperonas/tap/hollywood`. The sister project is `~/claude/wallstreet`.
   `badges.py`, `release_notes.py`, `tap-formula.sh`.
 - `website/` — project page, built with `~/claude/_templates/apps/product-page` from `website/site.json`.
 
-## Controls (1.2.0)
+## Controls (1.3.0)
+
+- **By itself the show swaps ONE pane** every `-d` seconds (`ctl swap`: `respawn-pane -k`
+  in the pane that has shown its widget longest - pane option `@since` - and is neither
+  kept nor, if avoidable, selected). The full rebuild (`deal`) happens only on `n` or with
+  `-r`. Do not bring the periodic rebuild back as default: it threw away selection, sizes
+  and everything the user had arranged (user report 2026-11-17).
+- `+`/`-`/`r`/`x`/`a` never set the `deal` flag. `add()` halves the largest pane (`-d`: the
+  selection stays). `splits` follows the real pane count and only feeds the next `n`.
+- `k` sets the pane option `@keep`; swap, `less` and `deal` spare such panes.
+- The tests' stand-in for tmux (`FAKE_TMUX`) keeps a table of panes and understands the
+  format strings ctl uses - a new format string needs a line there.
 
 - `share/hollywood/ctl STATE <command>` is what keys, mouse and toolbar run: `close [PANE]`,
-  `zoom [PANE]`, `open WIDGET`, `restore`, `deal`, `pause`, `more`, `less`, `menu`,
+  `swap [PANE]`, `keep [PANE]`, `zoom [PANE]`, `open WIDGET`, `restore`, `deal`, `pause`, `more`, `less`, `menu`,
   `panemenu PANE`, `button NAME`, `help`, `helppage`, `quit`. It only writes flags into the
   show's state directory (`mktemp -d …/hollywood.XXXXXXXX`: `window`, `widgets`, `splits`,
   `max`, `panes`, `banned`, `deal`, `paused`) and talks to tmux; the launcher's loop reads
